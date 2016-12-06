@@ -1,0 +1,51 @@
+﻿{
+  "version": "1.0.0-*",
+  "authors": [ "Slalom Architect Academy" ],
+  "packOptions": {
+    "tags": [ "slalom", "stacks", "data", "entity framework" ],
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
+    "requireLicenseAcceptance": true,
+    "summary": "The MS SQL Server Data library for Stacks."
+  },
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "Slalom.Stacks": "1.0.2",
+    "Microsoft.EntityFrameworkCore": "1.1.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.1.0",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0"
+  },
+
+  "buildOptions": {
+    "additionalArguments": [ "/ruleset:../../Slalom.ruleset", "/additionalfile:../../stylecop.json" ],
+    "xmlDoc": true
+  },
+
+   "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dotnet54",
+        "portable-net45+win8"
+      ],
+      "dependencies": {
+        "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
+      }
+    },
+    "net461": {
+      "dependencies": {
+        "System.Reflection": "4.3.0"
+      },
+      "imports": "dnxcore50"
+    }
+  },
+
+  "tools": {
+    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
+  },
+
+  "scripts": {
+    "postcompile": [
+      "dotnet pack --no-build --configuration %compile:Configuration%",
+      "xcopy .\\bin\\debug\\*.nupkg c:\\nuget\\ /y"
+    ]
+  }
+}
