@@ -5,7 +5,7 @@
     "tags": [ "slalom", "stacks", "data", "entity framework" ],
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "requireLicenseAcceptance": true,
-    "summary": "The MS SQL Server Data library for Stacks."
+    "summary": "The MS SQL Server Logging library for Stacks."
   },
   "dependencies": {
     "NETStandard.Library": "1.6.0",

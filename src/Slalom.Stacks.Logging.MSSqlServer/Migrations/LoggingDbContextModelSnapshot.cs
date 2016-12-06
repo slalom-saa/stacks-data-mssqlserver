@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Slalom.Stacks.Logging.MSSqlServer.Migrations
 {
+    [DbContext(typeof(LoggingDbContext))]
     partial class LoggingDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

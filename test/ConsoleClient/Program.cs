@@ -26,21 +26,32 @@ namespace ConsoleClient
         {
         }
 
+        public class TestCommand : Command<TestEvent>
+        {
+        }
+
+        public class TestCommandHandler : CommandHandler<TestCommand, TestEvent>
+        {
+            public override Task<TestEvent> Handle(TestCommand command)
+            {
+                return Task.FromResult(new TestEvent());
+            }
+        }
+
         public async Task Run()
         {
-            using (var container = new ApplicationContainer(this))
+            try
             {
-                var options = new DbContextOptionsBuilder();
-                options.UseSqlServer("Data Source=localhost;Initial Catalog=Logs;Integrated Security=True", a =>
+                using (var container = new ApplicationContainer(this))
                 {
-                    a.
-                });
+                    container.RegisterModule(new MSSqlServerLoggingModule());
 
-                var context = new DbContext(options.Options);
-
-                var audit = new AuditStore(context);
-
-                await audit.AppendAsync(new TestEvent(), new LocalExecutionContext());
+                    await container.Bus.Send(new TestCommand());
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
             }
             Console.WriteLine("Done executing");
         }

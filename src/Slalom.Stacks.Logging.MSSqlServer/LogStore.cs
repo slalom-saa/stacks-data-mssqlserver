@@ -4,25 +4,23 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Slalom.Stacks.Communication;
 using Slalom.Stacks.Communication.Logging;
-using Slalom.Stacks.Logging.MSSqlServer.Migrations;
 using Slalom.Stacks.Runtime;
 
 namespace Slalom.Stacks.Logging.MSSqlServer
 {
-    public class AuditStore : IAuditStore
+    public class LogStore : ILogStore
     {
         private readonly DbContext _context;
 
-        public AuditStore(DbContext context)
+        public LogStore(DbContext context)
         {
             _context = context;
-
-            _context.EnsureMigrations();
         }
 
-        public Task AppendAsync(IEvent @event, ExecutionContext context)
+        public Task AppendAsync(ICommand command, ICommandResult result, ExecutionContext context)
         {
-            _context.Add(new Audit(@event, context));
+            _context.Add(new Log(command, result, context));
+
             return _context.SaveChangesAsync();
         }
     }
