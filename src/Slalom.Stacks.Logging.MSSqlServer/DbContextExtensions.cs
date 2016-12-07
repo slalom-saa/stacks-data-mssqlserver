@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Slalom.Stacks.Logging.MSSqlServer
 {
+    /// <summary>
+    /// Extensions for <see cref="DbContext"/> classes.
+    /// </summary>
     public static class DbContextExtensions
     {
+        /// <summary>
+        /// Ensures that the database is created and no migrations are pending.
+        /// </summary>
+        /// <param name="context">The context.</param>
         public static void EnsureMigrations(this DbContext context)
         {
             context.Database.EnsureCreated();
@@ -15,6 +22,11 @@ namespace Slalom.Stacks.Logging.MSSqlServer
             }
         }
 
+        /// <summary>
+        /// Ensures that the database is created and no migrations are pending.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns>Task.</returns>
         public static async Task EnsureMigrationsAsync(this DbContext context)
         {
             await context.Database.EnsureCreatedAsync();
