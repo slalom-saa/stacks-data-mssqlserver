@@ -8,6 +8,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
     {
         public static void EnsureMigrations(this DbContext context)
         {
+            context.Database.EnsureCreated();
             if (context.Database.GetPendingMigrations().Any())
             {
                 context.Database.Migrate();
@@ -16,6 +17,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
 
         public static async Task EnsureMigrationsAsync(this DbContext context)
         {
+            await context.Database.EnsureCreatedAsync();
             if ((await context.Database.GetPendingMigrationsAsync()).Any())
             {
                 await context.Database.MigrateAsync();

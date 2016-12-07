@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Slalom.Stacks.Communication;
 using Slalom.Stacks.Communication.Logging;
-using Slalom.Stacks.Logging.MSSqlServer.Migrations;
 using Slalom.Stacks.Runtime;
 
 namespace Slalom.Stacks.Logging.MSSqlServer

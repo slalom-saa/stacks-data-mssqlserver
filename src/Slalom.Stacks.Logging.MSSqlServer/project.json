@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
@@ -8,8 +8,8 @@
     "summary": "The MS SQL Server Logging library for Stacks."
   },
   "dependencies": {
-    "NETStandard.Library": "1.6.0",
-    "Slalom.Stacks": "1.0.2",
+    "NETStandard.Library": "1.6.1",
+    "Slalom.Stacks": "1.0.11",
     "Microsoft.EntityFrameworkCore": "1.1.0",
     "Microsoft.EntityFrameworkCore.Relational": "1.1.0",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0"
