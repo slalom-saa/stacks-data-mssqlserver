@@ -9,13 +9,13 @@ namespace Slalom.Stacks.Configuration
 {
     public static class ApplicationContainerExtensions
     {
-        public static ApplicationContainer UseSqlServerLogging(this ApplicationContainer instance)
+        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance)
         {
             instance.RegisterModule(new MSSqlServerLoggingModule());
             return instance;
         }
 
-        public static ApplicationContainer UseSqlServerLogging(this ApplicationContainer instance, Action<MsSqlServerLoggingOptions> configuration)
+        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<MsSqlServerLoggingOptions> configuration)
         {
             instance.RegisterModule(new MSSqlServerLoggingModule(configuration));
             return instance;
