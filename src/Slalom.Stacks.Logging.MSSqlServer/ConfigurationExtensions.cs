@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using Slalom.Stacks.Logging.MSSqlServer;
+using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Configuration
+namespace Slalom.Stacks.Logging.MSSqlServer
 {
     /// <summary>
-    /// Contains configuration methods for the SQL Server Logging block.
+    /// Contains extension methods to add SQL Server Logging blocks.
     /// </summary>
     public static class ConfigurationExtensions
     {
