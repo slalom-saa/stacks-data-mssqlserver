@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ConsoleClient.Commands;
 using Slalom.Stacks.Configuration;
@@ -26,7 +27,13 @@ namespace ConsoleClient
                 {
                     container.UseSqlServerAuditing();
 
-                    await container.Bus.Send(new TestCommand());
+                    var tasks = new List<Task>();
+                    for (int i = 0; i < 100; i++)
+                    {
+                        tasks.Add(container.Bus.Send(new TestCommand()));
+                    }
+
+                    await Task.WhenAll(tasks);
                 }
             }
             catch (Exception exception)

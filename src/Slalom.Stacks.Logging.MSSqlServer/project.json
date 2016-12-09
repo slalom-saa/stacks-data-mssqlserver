@@ -1,5 +1,5 @@
 {
-  "version": "1.0.10-*",
+  "version": "1.0.13-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
     "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
