@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
@@ -34,6 +33,20 @@ namespace Slalom.Stacks.Logging.MSSqlServer
             Argument.NotNull(() => instance);
 
             instance.RegisterModule(new MSSqlServerLoggingModule(configuration));
+            return instance;
+        }
+
+        /// <summary>
+        /// Adds the SQL Server Auditing block to the container.
+        /// </summary>
+        /// <param name="instance">The this instance.</param>
+        /// <param name="options">The options to use.</param>
+        /// <returns>Returns the container instance for method chaining.</returns>
+        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, MsSqlServerLoggingOptions options)
+        {
+            Argument.NotNull(() => instance);
+
+            instance.RegisterModule(new MSSqlServerLoggingModule(options));
             return instance;
         }
     }

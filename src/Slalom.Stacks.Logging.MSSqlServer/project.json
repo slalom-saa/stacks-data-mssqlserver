@@ -1,11 +1,11 @@
 {
-  "version": "1.0.8-*",
+  "version": "1.0.10-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
-    "tags": [ "slalom", "stacks", "blocks", "logging" ],
+    "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "requireLicenseAcceptance": true,
-    "summary": "The SQL Server Logging blocks for Stacks."
+    "summary": "SQL Server Logging blocks for Slalom.Stacks."
   },
   "dependencies": {
     "NETStandard.Library": "1.6.1",
