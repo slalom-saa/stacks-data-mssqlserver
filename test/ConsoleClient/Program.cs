@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Slalom.Stacks.Communication;
+using ConsoleClient.Commands;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.MSSqlServer;
-using Slalom.Stacks.Runtime;
 
 #pragma warning disable 1998
 #pragma warning disable 4014
@@ -22,29 +18,13 @@ namespace ConsoleClient
             Console.ReadKey();
         }
 
-        public class TestEvent : Event
-        {
-        }
-
-        public class TestCommand : Command<TestEvent>
-        {
-        }
-
-        public class TestCommandHandler : CommandHandler<TestCommand, TestEvent>
-        {
-            public override Task<TestEvent> Handle(TestCommand command)
-            {
-                return Task.FromResult(new TestEvent());
-            }
-        }
-
         public async Task Run()
         {
             try
             {
                 using (var container = new ApplicationContainer(this))
                 {
-                    container.RegisterModule(new MSSqlServerLoggingModule());
+                    container.UseSqlServerAuditing();
 
                     await container.Bus.Send(new TestCommand());
                 }
@@ -53,7 +33,7 @@ namespace ConsoleClient
             {
                 Console.WriteLine(exception);
             }
-            Console.WriteLine("Done executing");
+            Console.WriteLine("Done with async execution.");
         }
     }
 }

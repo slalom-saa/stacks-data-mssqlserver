@@ -1,6 +1,8 @@
 ﻿using System;
 using Autofac;
+using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Communication.Logging;
+using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.MSSqlServer
 {
@@ -25,7 +27,20 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="configuration">The configuration routine.</param>
         public MSSqlServerLoggingModule(Action<MsSqlServerLoggingOptions> configuration)
         {
+            Argument.NotNull(() => configuration);
+
             configuration(_options);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MSSqlServerLoggingModule"/> class.
+        /// </summary>
+        /// <param name="options">The options to use.</param>
+        public MSSqlServerLoggingModule(MsSqlServerLoggingOptions options)
+        {
+            Argument.NotNull(() => options);
+
+            _options = options;
         }
 
         /// <summary>
@@ -43,7 +58,12 @@ namespace Slalom.Stacks.Logging.MSSqlServer
                 var context = new LoggingDbContext(_options);
                 context.EnsureMigrations();
                 return context;
-            }).SingleInstance();
+            }).SingleInstance()
+                   .OnPreparing(e =>
+                   {
+                       var configuration = e.Context.Resolve<IConfiguration>();
+                       _options.ConnectionString = configuration["Stacks:Logging:SQL:ConnectionString"] ?? _options.ConnectionString;
+                   });
 
             builder.Register<IAuditStore>(c => new AuditStore(c.Resolve<LoggingDbContext>()))
                    .SingleInstance();

@@ -1,18 +1,18 @@
 {
-  "version": "1.0.4-*",
+  "version": "1.0.10-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
-    "tags": [ "slalom", "stacks", "data", "entity framework" ],
+    "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "requireLicenseAcceptance": true,
-    "summary": "The MS SQL Server Logging library for Stacks."
+    "summary": "SQL Server Logging blocks for Slalom.Stacks."
   },
   "dependencies": {
     "NETStandard.Library": "1.6.1",
     "Microsoft.EntityFrameworkCore": "1.1.0",
     "Microsoft.EntityFrameworkCore.Relational": "1.1.0",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
-    "Slalom.Stacks": "1.0.17"
+    "Slalom.Stacks": "1.0.33"
   },
 
   "buildOptions": {
@@ -31,8 +31,9 @@
       }
     },
     "net461": {
+      "frameworkAssemblies": {
+      },
       "dependencies": {
-        "System.Reflection": "4.3.0"
       },
       "imports": "dnxcore50"
     }

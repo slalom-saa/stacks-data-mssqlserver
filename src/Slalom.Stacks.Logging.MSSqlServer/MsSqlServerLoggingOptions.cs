@@ -11,7 +11,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// Gets the connection string.
         /// </summary>
         /// <value>The connection string.</value>
-        internal string ConnectionString { get; private set; } = "Data Source=localhost;Initial Catalog=Stacks.Logs;Integrated Security=True";
+        internal string ConnectionString { get; set; } = "Data Source=localhost;Initial Catalog=Stacks.Logs;Integrated Security=True";
 
         /// <summary>
         /// Sets the connection string to use.
