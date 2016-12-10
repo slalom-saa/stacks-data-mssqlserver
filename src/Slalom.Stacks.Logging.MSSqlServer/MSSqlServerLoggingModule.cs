@@ -53,23 +53,24 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         {
             base.Load(builder);
 
-            builder.Register(c =>
-            {
-                var context = new LoggingDbContext(_options);
-                context.EnsureMigrations();
-                return context;
-            }).SingleInstance()
+            builder.Register(c => new LoggingDbContext(_options))
                    .OnPreparing(e =>
                    {
                        var configuration = e.Context.Resolve<IConfiguration>();
                        _options.ConnectionString = configuration["Stacks:Logging:SQL:ConnectionString"] ?? _options.ConnectionString;
+                   }).OnActivated(e =>
+                   {
+                       e.Instance.EnsureMigrations();
+                       e.Instance.ChangeTracker.AutoDetectChangesEnabled = false;
                    });
 
-            builder.Register<IAuditStore>(c => new AuditStore(c.Resolve<LoggingDbContext>()))
-                   .SingleInstance();
+            builder.Register(c => new AuditStore(c.Resolve<LoggingDbContext>()))
+                   .AsImplementedInterfaces()
+                   .AsSelf();
 
             builder.Register<ILogStore>(c => new LogStore(c.Resolve<LoggingDbContext>()))
-                   .SingleInstance();
+                   .AsImplementedInterfaces()
+                   .AsSelf();
         }
     }
 }

@@ -34,11 +34,11 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="result">The execution result.</param>
         /// <param name="context">The current <see cref="T:Slalom.Boost.Commands.CommandContext" /> instance.</param>
         /// <returns>A task for asynchronous programming.</returns>
-        public Task AppendAsync(ICommand command, ICommandResult result, ExecutionContext context)
+        public async Task AppendAsync(ICommand command, ICommandResult result, ExecutionContext context)
         {
             _context.Add(new Log(command, result, context));
 
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }
