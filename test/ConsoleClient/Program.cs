@@ -14,7 +14,7 @@ namespace ConsoleClient
     {
         public static void Main(string[] args)
         {
-            Task.Factory.StartNew(() => new Program().Start());
+            Task.Run(() => new Program().Start());
             Console.WriteLine("Running application.  Press any key to halt...");
             Console.ReadKey();
         }
@@ -27,13 +27,10 @@ namespace ConsoleClient
                 {
                     container.UseSqlServerAuditing();
 
-                    var tasks = new List<Task>();
                     for (int i = 0; i < 100; i++)
                     {
-                        tasks.Add(container.Bus.Send(new TestCommand()));
+                        await container.Bus.SendAsync(new TestCommand());
                     }
-
-                    await Task.WhenAll(tasks);
                 }
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Execution completed successfully.  Press any key to exit...");
