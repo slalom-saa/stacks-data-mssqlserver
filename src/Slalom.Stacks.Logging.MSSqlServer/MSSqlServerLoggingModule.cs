@@ -3,6 +3,7 @@ using Autofac;
 using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Communication.Logging;
 using Slalom.Stacks.Validation;
+using Slalom.Stacks.Configuration;
 
 namespace Slalom.Stacks.Logging.MSSqlServer
 {
@@ -27,7 +28,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="configuration">The configuration routine.</param>
         public MSSqlServerLoggingModule(Action<MsSqlServerLoggingOptions> configuration)
         {
-            Argument.NotNull(() => configuration);
+            Argument.NotNull(configuration, nameof(configuration));
 
             configuration(_options);
         }
@@ -38,7 +39,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="options">The options to use.</param>
         public MSSqlServerLoggingModule(MsSqlServerLoggingOptions options)
         {
-            Argument.NotNull(() => options);
+            Argument.NotNull(options, nameof(options));
 
             _options = options;
         }
@@ -57,7 +58,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
                    .OnPreparing(e =>
                    {
                        var configuration = e.Context.Resolve<IConfiguration>();
-                       _options.ConnectionString = configuration["Stacks:Logging:SQL:ConnectionString"] ?? _options.ConnectionString;
+                       _options.ConnectionString = configuration.GetOptionalSetting("Stacks:Logging:SQL:ConnectionString", _options.ConnectionString);
                    }).OnActivated(e =>
                    {
                        e.Instance.EnsureMigrations();

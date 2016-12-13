@@ -19,7 +19,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="options">The options.</param>
         public LoggingDbContext(MsSqlServerLoggingOptions options)
         {
-            Argument.NotNull(() => options);
+            Argument.NotNull(options, nameof(options));
 
             _options = options;
         }

@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using ConsoleClient.Commands;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.MSSqlServer;
+
+// ReSharper disable AccessToDisposedClosure
 
 #pragma warning disable 1998
 #pragma warning disable 4014
@@ -14,7 +16,7 @@ namespace ConsoleClient
     {
         public static void Main(string[] args)
         {
-            Task.Factory.StartNew(() => new Program().Start());
+            Task.Run(() => new Program().Start());
             Console.WriteLine("Running application.  Press any key to halt...");
             Console.ReadKey();
         }
@@ -23,20 +25,20 @@ namespace ConsoleClient
         {
             try
             {
+                var watch = new Stopwatch();
                 using (var container = new ApplicationContainer(this))
                 {
                     container.UseSqlServerAuditing();
 
-                    var tasks = new List<Task>();
-                    for (int i = 0; i < 100; i++)
+                    watch.Start();
+                    for (var i = 0; i < 100; i++)
                     {
-                        tasks.Add(container.Bus.Send(new TestCommand()));
+                        await Task.Run(() => container.Bus.SendAsync(new TestCommand()).ConfigureAwait(false));
                     }
-
-                    await Task.WhenAll(tasks);
+                    watch.Stop();
                 }
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Execution completed successfully.  Press any key to exit...");
+                Console.WriteLine($"Execution completed successfully in {watch.Elapsed}.  Press any key to exit...");
                 Console.ResetColor();
             }
             catch (Exception exception)

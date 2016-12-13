@@ -22,7 +22,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="context">The context.</param>
         public LogStore(DbContext context)
         {
-            Argument.NotNull(() => context);
+            Argument.NotNull(context, nameof(context));
 
             _context = context;
         }
@@ -36,6 +36,10 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <returns>A task for asynchronous programming.</returns>
         public async Task AppendAsync(ICommand command, ICommandResult result, ExecutionContext context)
         {
+            Argument.NotNull(command, nameof(command));
+            Argument.NotNull(result, nameof(result));
+            Argument.NotNull(context, nameof(context));
+
             _context.Add(new Log(command, result, context));
 
             await _context.SaveChangesAsync();

@@ -20,7 +20,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <returns>The instance for chaining.</returns>
         public MsSqlServerLoggingOptions UseConnectionString(string connectionString)
         {
-            Argument.NotNullOrWhiteSpace(() => connectionString);
+            Argument.NotNullOrWhiteSpace(connectionString, nameof(connectionString));
 
             this.ConnectionString = connectionString;
 
