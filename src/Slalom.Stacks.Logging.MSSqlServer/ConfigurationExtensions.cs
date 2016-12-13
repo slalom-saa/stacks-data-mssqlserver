@@ -16,7 +16,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <returns>Returns the container instance for method chaining.</returns>
         public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance)
         {
-            Argument.NotNull(() => instance);
+            Argument.NotNull(instance, nameof(instance));
 
             instance.RegisterModule(new MSSqlServerLoggingModule());
             return instance;
@@ -30,7 +30,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <returns>Returns the container instance for method chaining.</returns>
         public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<MsSqlServerLoggingOptions> configuration)
         {
-            Argument.NotNull(() => instance);
+            Argument.NotNull(instance, nameof(instance));
 
             instance.RegisterModule(new MSSqlServerLoggingModule(configuration));
             return instance;
@@ -44,7 +44,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <returns>Returns the container instance for method chaining.</returns>
         public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, MsSqlServerLoggingOptions options)
         {
-            Argument.NotNull(() => instance);
+            Argument.NotNull(instance, nameof(instance));
 
             instance.RegisterModule(new MSSqlServerLoggingModule(options));
             return instance;
