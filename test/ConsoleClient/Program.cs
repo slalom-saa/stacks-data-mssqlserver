@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ConsoleClient.Commands;
+using ConsoleClient.Commands.AddItem;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.MSSqlServer;
 
@@ -31,9 +33,10 @@ namespace ConsoleClient
                     container.UseSqlServerAuditing();
 
                     watch.Start();
-                    for (var i = 0; i < 100; i++)
+                    for (int i = 0; i < 100; i++)
                     {
-                        await Task.Run(() => container.Bus.SendAsync(new TestCommand()).ConfigureAwait(false));
+                        var local = i;
+                        await Task.Run(() => container.Bus.SendAsync(new AddItemCommand("test " + local)).ConfigureAwait(false));
                     }
                     watch.Stop();
                 }
