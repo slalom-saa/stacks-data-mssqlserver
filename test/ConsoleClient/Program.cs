@@ -36,7 +36,7 @@ namespace ConsoleClient
                     watch.Start();
 
                     var tasks = new List<Task>(count);
-                    Parallel.For(0, count, e =>
+                    Parallel.For(0, count, new ParallelOptions { MaxDegreeOfParallelism = 4 }, e =>
                     {
                         tasks.Add(container.Bus.SendAsync(new AddItemCommand(DateTime.Now.Ticks.ToString())));
                     });
