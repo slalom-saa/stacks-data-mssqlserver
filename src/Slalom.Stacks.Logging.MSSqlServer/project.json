@@ -1,5 +1,5 @@
 {
-  "version": "1.0.16-*",
+  "version": "1.0.17-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
     "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
@@ -15,7 +15,7 @@
     "Microsoft.EntityFrameworkCore": "1.1.0",
     "Microsoft.EntityFrameworkCore.Relational": "1.1.0",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
-    "Slalom.Stacks": "1.0.92"
+    "Slalom.Stacks": "1.1.1"
   },
 
   "buildOptions": {
