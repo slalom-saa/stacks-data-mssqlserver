@@ -13,38 +13,15 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// Adds the SQL Server Auditing block to the container.
         /// </summary>
         /// <param name="instance">The this instance.</param>
-        /// <returns>Returns the container instance for method chaining.</returns>
-        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance)
-        {
-            Argument.NotNull(instance, nameof(instance));
-
-            instance.RegisterModule(new MSSqlServerLoggingModule());
-            return instance;
-        }
-
-        /// <summary>
-        /// Adds the SQL Server Auditing block to the container.
-        /// </summary>
-        /// <param name="instance">The this instance.</param>
         /// <param name="configuration">The configuration routine.</param>
         /// <returns>Returns the container instance for method chaining.</returns>
-        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<MsSqlServerLoggingOptions> configuration)
+        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<MsSqlServerLoggingOptions> configuration = null)
         {
             Argument.NotNull(instance, nameof(instance));
 
-            instance.RegisterModule(new MSSqlServerLoggingModule(configuration));
-            return instance;
-        }
+            var options = new MsSqlServerLoggingOptions();
 
-        /// <summary>
-        /// Adds the SQL Server Auditing block to the container.
-        /// </summary>
-        /// <param name="instance">The this instance.</param>
-        /// <param name="options">The options to use.</param>
-        /// <returns>Returns the container instance for method chaining.</returns>
-        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, MsSqlServerLoggingOptions options)
-        {
-            Argument.NotNull(instance, nameof(instance));
+            configuration?.Invoke(options);
 
             instance.RegisterModule(new MSSqlServerLoggingModule(options));
             return instance;
