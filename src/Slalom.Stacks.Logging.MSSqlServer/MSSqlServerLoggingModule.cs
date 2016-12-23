@@ -2,8 +2,8 @@
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Communication.Logging;
-using Slalom.Stacks.Validation;
 using Slalom.Stacks.Configuration;
+using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.MSSqlServer
 {
@@ -13,25 +13,7 @@ namespace Slalom.Stacks.Logging.MSSqlServer
     /// <seealso cref="Autofac.Module" />
     public class MSSqlServerLoggingModule : Module
     {
-        private readonly MsSqlServerLoggingOptions _options = new MsSqlServerLoggingOptions();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MSSqlServerLoggingModule"/> class.
-        /// </summary>
-        public MSSqlServerLoggingModule()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MSSqlServerLoggingModule"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration routine.</param>
-        public MSSqlServerLoggingModule(Action<MsSqlServerLoggingOptions> configuration)
-        {
-            Argument.NotNull(configuration, nameof(configuration));
-
-            configuration(_options);
-        }
+        private readonly MsSqlServerLoggingOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MSSqlServerLoggingModule"/> class.

@@ -16,7 +16,8 @@
     },
     "Slalom.Stacks.Logging.MSSqlServer": {
       "target": "project"
-    }
+    },
+    "Slalom.Stacks.Test": "1.0.1"
   },
 
   "frameworks": {
