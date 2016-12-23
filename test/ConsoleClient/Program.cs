@@ -30,8 +30,10 @@ namespace ConsoleClient
             try
             {
                 var watch = new Stopwatch();
+
                 var count = 1000;
                 using (var container = new ApplicationContainer(typeof(Item)))
+
                 {
                     container.UseSqlServerAuditing();
 
