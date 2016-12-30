@@ -1,5 +1,5 @@
 {
-  "version": "1.0.17-*",
+  "version": "1.2.10-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
     "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
@@ -15,7 +15,7 @@
     "Microsoft.EntityFrameworkCore": "1.1.0",
     "Microsoft.EntityFrameworkCore.Relational": "1.1.0",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
-    "Slalom.Stacks": "1.2.1"
+    "Slalom.Stacks": "1.2.57"
   },
 
   "buildOptions": {
@@ -24,16 +24,16 @@
   },
 
    "frameworks": {
-    "netcoreapp1.0": {
-      "imports": [
-        "dotnet54",
-        "portable-net45+win8"
-      ],
-      "dependencies": {
+    //"netcoreapp1.0": {
+    //  "imports": [
+    //    "dotnet54",
+    //    "portable-net45+win8"
+    //  ],
+    //  "dependencies": {
 
-        "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
-      }
-    },
+    //    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
+    //  }
+    //},
     "net461": {
       "frameworkAssemblies": {
       },

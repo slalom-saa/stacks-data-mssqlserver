@@ -10,18 +10,25 @@
   "dependencies": {
     "Microsoft.EntityFrameworkCore": "1.1.0",
     "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.1.0"
-    },
-    "Slalom.Stacks.Logging.MSSqlServer": {
+    //"Microsoft.NETCore.App": {
+    //  "type": "platform",
+    //  "version": "1.1.0"
+    //},
+    "Slalom.Stacks.Logging.SqlServer": {
       "target": "project"
     },
-    "Slalom.Stacks.Test": "1.0.1"
+    "Slalom.Stacks.Test": "1.2.57"
   },
 
   "frameworks": {
-    "netcoreapp1.0": {
+    //"netcoreapp1.0": {
+    //  "imports": "dnxcore50"
+    //},
+    "net461": {
+      "frameworkAssemblies": {
+      },
+      "dependencies": {
+      },
       "imports": "dnxcore50"
     }
   }

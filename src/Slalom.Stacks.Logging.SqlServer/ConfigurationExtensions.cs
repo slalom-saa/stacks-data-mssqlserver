@@ -2,7 +2,7 @@
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
     /// Contains extension methods to add SQL Server Logging blocks.
@@ -15,15 +15,15 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         /// <param name="instance">The this instance.</param>
         /// <param name="configuration">The configuration routine.</param>
         /// <returns>Returns the container instance for method chaining.</returns>
-        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<MsSqlServerLoggingOptions> configuration = null)
+        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<SqlServerLoggingOptions> configuration = null)
         {
             Argument.NotNull(instance, nameof(instance));
 
-            var options = new MsSqlServerLoggingOptions();
+            var options = new SqlServerLoggingOptions();
 
             configuration?.Invoke(options);
 
-            instance.RegisterModule(new MSSqlServerLoggingModule(options));
+            instance.RegisterModule(new SqlServerLoggingModule(options));
             return instance;
         }
     }
