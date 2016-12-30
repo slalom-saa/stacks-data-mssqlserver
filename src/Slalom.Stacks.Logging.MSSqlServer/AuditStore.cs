@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Slalom.Stacks.Messaging.Logging;
@@ -10,18 +12,90 @@ namespace Slalom.Stacks.Logging.MSSqlServer
     /// A SQL Server <see cref="IAuditStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.IAuditStore" />
-    public class AuditStore : IAuditStore
+    public class AuditStore : PeriodicBatcher<AuditEntry>, IAuditStore
     {
-        private readonly string _connectionString;
+        private readonly SqlServerLoggingOptions _options;
+        private readonly SqlConnectionManager _connection;
+        private readonly DataTable _eventsTable = CreateTable();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuditStore"/> class.
+        /// Initializes a new instance of the <see cref="AuditStore" /> class.
         /// </summary>
-        public AuditStore(string connectionString)
+        /// <param name="options">The configured <see cref="SqlServerLoggingOptions"/>.</param>
+        /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
+        public AuditStore(SqlServerLoggingOptions options, SqlConnectionManager connection) : base(options.BatchSize, options.Period)
         {
-            Argument.NotNullOrWhiteSpace(connectionString, nameof(connectionString));
+            Argument.NotNull(options, nameof(options));
+            Argument.NotNull(connection, nameof(connection));
 
-            _connectionString = connectionString;
+            _options = options;
+            _connection = connection;
+        }
+
+        public static DataTable CreateTable()
+        {
+            var table = new DataTable();
+            table.Columns.Add(new DataColumn
+            {
+                DataType = typeof(int),
+                ColumnName = "Id",
+                AutoIncrement = true
+            });
+            table.Columns.Add("ApplicationName");
+            table.Columns.Add("CorrelationId");
+            table.Columns.Add("Environment");
+            table.Columns.Add("EventId");
+            table.Columns.Add("EventName");
+            table.Columns.Add("MachineName");
+            table.Columns.Add("Path");
+            table.Columns.Add("Payload");
+            table.Columns.Add("SessionId");
+            table.Columns.Add("ThreadId");
+            table.Columns.Add("TimeStamp");
+            table.Columns.Add("UserHostAddress");
+            table.Columns.Add("UserName");
+            return table;
+        }
+
+        public void Fill(IEnumerable<AuditEntry> entries)
+        {
+            foreach (var item in entries)
+            {
+                _eventsTable.Rows.Add(null,
+                    item.ApplicationName,
+                    item.CorrelationId,
+                    item.Environment,
+                    item.EventId,
+                    item.EventName,
+                    item.MachineName,
+                    item.Path,
+                    item.Payload,
+                    item.SessionId,
+                    item.ThreadId,
+                    item.TimeStamp,
+                    item.UserHostAddress,
+                    item.UserName);
+            }
+            _eventsTable.AcceptChanges();
+        }
+
+        protected override async Task EmitBatchAsync(IEnumerable<AuditEntry> events)
+        {
+            this.Fill(events);
+
+            using (var copy = new SqlBulkCopy(_connection.Connection))
+            {
+                copy.DestinationTableName = string.Format(_options.AuditTableName);
+                foreach (var column in _eventsTable.Columns)
+                {
+                    var columnName = ((DataColumn)column).ColumnName;
+                    var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
+                    copy.ColumnMappings.Add(mapping);
+                }
+
+                await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
+            }
+            _eventsTable.Clear();
         }
 
         /// <summary>
@@ -33,30 +107,17 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         {
             Argument.NotNull(audit, nameof(audit));
 
-            var text =
-                @"INSERT INTO [Audits] ([ApplicationName], [CorrelationId], [Environment], [EventId], [EventName], [MachineName], [Path], [Payload], [SessionId], [ThreadId], [TimeStamp], [UserHostAddress], [UserName]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12)";
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand(text, connection))
-                {
-                    command.Parameters.AddWithValue("p0", (object)audit.ApplicationName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p1", (object)audit.CorrelationId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p2", (object)audit.Environment ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p3", (object)audit.EventId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p4", (object)audit.EventName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p5", (object)audit.MachineName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p6", (object)audit.Path ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p7", (object)audit.Payload ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p8", (object)audit.SessionId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p9", (object)audit.ThreadId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p10", (object)audit.TimeStamp ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p11", (object)audit.UserHostAddress ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p12", (object)audit.UserName ?? DBNull.Value);
+            this.Emit(audit);
+        }
 
-                    await command.ExecuteNonQueryAsync();
-                }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _eventsTable.Dispose();
             }
         }
+
     }
 }

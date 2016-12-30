@@ -24,16 +24,16 @@
   },
 
    "frameworks": {
-    "netcoreapp1.0": {
-      "imports": [
-        "dotnet54",
-        "portable-net45+win8"
-      ],
-      "dependencies": {
+    //"netcoreapp1.0": {
+    //  "imports": [
+    //    "dotnet54",
+    //    "portable-net45+win8"
+    //  ],
+    //  "dependencies": {
 
-        "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
-      }
-    },
+    //    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
+    //  }
+    //},
     "net461": {
       "frameworkAssemblies": {
       },

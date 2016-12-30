@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 
@@ -11,19 +12,25 @@ namespace Slalom.Stacks.Logging.MSSqlServer
     /// A SQL Server <see cref="ILogStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.ILogStore" />
-    public class LogStore : ILogStore
+    public class LogStore : PeriodicBatcher<LogEntry>, ILogStore
     {
-        private readonly string _connectionString;
+        private readonly SqlConnectionManager _connection;
+        private readonly DataTable _eventsTable = CreateTable();
+        private readonly SqlServerLoggingOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogStore" /> class.
         /// </summary>
-        /// <param name="connectionString">The connection string.</param>
-        public LogStore(string connectionString)
+        /// <param name="options">The configured options.</param>
+        /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
+        public LogStore(SqlServerLoggingOptions options, SqlConnectionManager connection)
+            : base(options.BatchSize, options.Period)
         {
-            Argument.NotNullOrWhiteSpace(connectionString, nameof(connectionString));
+            Argument.NotNull(options, nameof(options));
+            Argument.NotNull(connection, nameof(connection));
 
-            _connectionString = connectionString;
+            _options = options;
+            _connection = connection;
         }
 
         /// <summary>
@@ -35,36 +42,92 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         {
             Argument.NotNull(entry, nameof(entry));
 
-            var text =
-                @"INSERT INTO [Logs] ([ApplicationName], [CommandId], [CommandName], [Completed], [CorrelationId], [Elapsed], [Environment], [Exception], [IsSuccessful], [MachineName], [Path], [Payload], [SessionId], [Started], [ThreadId], [TimeStamp], [UserHostAddress], [UserName], [ValidationErrors]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)";
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand(text, connection))
-                {
-                    command.Parameters.AddWithValue("p0", (object)entry.ApplicationName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p1", (object)entry.CommandId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p2", (object)entry.CommandName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p3", (object)entry.Completed ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p4", (object)entry.CorrelationId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p5", (object)entry.Elapsed ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p6", (object)entry.Environment ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p7", (object)entry.RaisedException?.ToString() ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p8", (object)entry.IsSuccessful ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p9", (object)entry.MachineName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p10", (object)entry.Path ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p11", (object)entry.Payload ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p12", (object)entry.SessionId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p13", (object)entry.Started ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p14", (object)entry.ThreadId ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p15", (object)entry.TimeStamp ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p16", (object)entry.UserHostAddress ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p17", (object)entry.UserName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("p18", (object)entry.ValidationErrors ?? DBNull.Value);
+            this.Emit(entry);
+        }
 
-                    await command.ExecuteNonQueryAsync();
-                }
+        public static DataTable CreateTable()
+        {
+            var table = new DataTable();
+            table.Columns.Add(new DataColumn
+            {
+                DataType = typeof(int),
+                ColumnName = "Id",
+                AutoIncrement = true
+            });
+            table.Columns.Add("ApplicationName");
+            table.Columns.Add("CommandId");
+            table.Columns.Add("CommandName");
+            table.Columns.Add("Completed");
+            table.Columns.Add("CorrelationId");
+            table.Columns.Add("Elapsed");
+            table.Columns.Add("Environment");
+            table.Columns.Add("Exception");
+            table.Columns.Add("IsSuccessful");
+            table.Columns.Add("MachineName");
+            table.Columns.Add("Path");
+            table.Columns.Add("Payload");
+            table.Columns.Add("SessionId");
+            table.Columns.Add("Started");
+            table.Columns.Add("ThreadId");
+            table.Columns.Add("UserHostAddress");
+            table.Columns.Add("UserName");
+            table.Columns.Add("ValidationErrors");
+            return table;
+        }
+
+        public void Fill(IEnumerable<LogEntry> entries)
+        {
+            foreach (var item in entries)
+            {
+                _eventsTable.Rows.Add(null,
+                    item.ApplicationName,
+                    item.CommandId,
+                    item.CommandName,
+                    item.Completed,
+                    item.CorrelationId,
+                    item.Elapsed,
+                    item.Environment,
+                    item.RaisedException?.ToString(),
+                    item.IsSuccessful,
+                    item.MachineName,
+                    item.Path,
+                    item.Payload,
+                    item.SessionId,
+                    item.Started,
+                    item.ThreadId,
+                    item.UserHostAddress,
+                    item.UserName,
+                    item.ValidationErrors);
             }
+            _eventsTable.AcceptChanges();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _eventsTable.Dispose();
+            }
+        }
+
+        protected override async Task EmitBatchAsync(IEnumerable<LogEntry> events)
+        {
+            this.Fill(events);
+
+            using (var copy = new SqlBulkCopy(_connection.Connection))
+            {
+                copy.DestinationTableName = string.Format(_options.LogTableName);
+                foreach (var column in _eventsTable.Columns)
+                {
+                    var columnName = ((DataColumn)column).ColumnName;
+                    var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
+                    copy.ColumnMappings.Add(mapping);
+                }
+
+                await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
+            }
+            _eventsTable.Clear();
         }
     }
 }

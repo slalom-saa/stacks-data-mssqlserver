@@ -1,8 +1,6 @@
 ﻿using System;
 using Autofac;
-using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Messaging.Logging;
-using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.MSSqlServer
@@ -11,15 +9,15 @@ namespace Slalom.Stacks.Logging.MSSqlServer
     /// An Autofac module for the SQL Server Logging module.
     /// </summary>
     /// <seealso cref="Autofac.Module" />
-    public class MSSqlServerLoggingModule : Module
+    public class SqlServerLoggingModule : Module
     {
-        private readonly MsSqlServerLoggingOptions _options;
+        private readonly SqlServerLoggingOptions _options;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MSSqlServerLoggingModule"/> class.
+        /// Initializes a new instance of the <see cref="SqlServerLoggingModule"/> class.
         /// </summary>
         /// <param name="options">The options to use.</param>
-        public MSSqlServerLoggingModule(MsSqlServerLoggingOptions options)
+        public SqlServerLoggingModule(SqlServerLoggingOptions options)
         {
             Argument.NotNull(options, nameof(options));
 
@@ -36,11 +34,14 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         {
             base.Load(builder);
 
-            builder.Register(c => new AuditStore(_options.ConnectionString))
+            builder.Register(c => new SqlConnectionManager(_options.ConnectionString))
+                   .SingleInstance();
+
+            builder.Register(c => new AuditStore(_options, c.Resolve<SqlConnectionManager>()))
                    .AsImplementedInterfaces()
                    .AsSelf();
 
-            builder.Register<ILogStore>(c => new LogStore(_options.ConnectionString))
+            builder.Register<ILogStore>(c => new LogStore(_options, c.Resolve<SqlConnectionManager>()))
                    .AsImplementedInterfaces()
                    .AsSelf();
         }
