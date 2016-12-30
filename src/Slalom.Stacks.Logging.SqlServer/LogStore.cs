@@ -6,30 +6,43 @@ using System.Threading.Tasks;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
-    /// A SQL Server <see cref="IAuditStore"/> implementation.
+    /// A SQL Server <see cref="ILogStore"/> implementation.
     /// </summary>
-    /// <seealso cref="Slalom.Stacks.Messaging.Logging.IAuditStore" />
-    public class AuditStore : PeriodicBatcher<AuditEntry>, IAuditStore
+    /// <seealso cref="Slalom.Stacks.Messaging.Logging.ILogStore" />
+    public class LogStore : PeriodicBatcher<LogEntry>, ILogStore
     {
-        private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
         private readonly DataTable _eventsTable = CreateTable();
+        private readonly SqlServerLoggingOptions _options;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuditStore" /> class.
+        /// Initializes a new instance of the <see cref="LogStore" /> class.
         /// </summary>
-        /// <param name="options">The configured <see cref="SqlServerLoggingOptions"/>.</param>
+        /// <param name="options">The configured options.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
-        public AuditStore(SqlServerLoggingOptions options, SqlConnectionManager connection) : base(options.BatchSize, options.Period)
+        public LogStore(SqlServerLoggingOptions options, SqlConnectionManager connection)
+            : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(connection, nameof(connection));
 
             _options = options;
             _connection = connection;
+        }
+
+        /// <summary>
+        /// Appends an audit with the specified execution elements.
+        /// </summary>
+        /// <param name="entry">The log entry to append.</param>
+        /// <returns>A task for asynchronous programming.</returns>
+        public async Task AppendAsync(LogEntry entry)
+        {
+            Argument.NotNull(entry, nameof(entry));
+
+            this.Emit(entry);
         }
 
         public static DataTable CreateTable()
@@ -42,72 +55,51 @@ namespace Slalom.Stacks.Logging.MSSqlServer
                 AutoIncrement = true
             });
             table.Columns.Add("ApplicationName");
+            table.Columns.Add("CommandId");
+            table.Columns.Add("CommandName");
+            table.Columns.Add("Completed");
             table.Columns.Add("CorrelationId");
+            table.Columns.Add("Elapsed");
             table.Columns.Add("Environment");
-            table.Columns.Add("EventId");
-            table.Columns.Add("EventName");
+            table.Columns.Add("Exception");
+            table.Columns.Add("IsSuccessful");
             table.Columns.Add("MachineName");
             table.Columns.Add("Path");
             table.Columns.Add("Payload");
             table.Columns.Add("SessionId");
+            table.Columns.Add("Started");
             table.Columns.Add("ThreadId");
-            table.Columns.Add("TimeStamp");
             table.Columns.Add("UserHostAddress");
             table.Columns.Add("UserName");
+            table.Columns.Add("ValidationErrors");
             return table;
         }
 
-        public void Fill(IEnumerable<AuditEntry> entries)
+        public void Fill(IEnumerable<LogEntry> entries)
         {
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
                     item.ApplicationName,
+                    item.CommandId,
+                    item.CommandName,
+                    item.Completed,
                     item.CorrelationId,
+                    item.Elapsed,
                     item.Environment,
-                    item.EventId,
-                    item.EventName,
+                    item.RaisedException?.ToString(),
+                    item.IsSuccessful,
                     item.MachineName,
                     item.Path,
                     item.Payload,
                     item.SessionId,
+                    item.Started,
                     item.ThreadId,
-                    item.TimeStamp,
                     item.UserHostAddress,
-                    item.UserName);
+                    item.UserName,
+                    item.ValidationErrors);
             }
             _eventsTable.AcceptChanges();
-        }
-
-        protected override async Task EmitBatchAsync(IEnumerable<AuditEntry> events)
-        {
-            this.Fill(events);
-
-            using (var copy = new SqlBulkCopy(_connection.Connection))
-            {
-                copy.DestinationTableName = string.Format(_options.AuditTableName);
-                foreach (var column in _eventsTable.Columns)
-                {
-                    var columnName = ((DataColumn)column).ColumnName;
-                    var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
-                    copy.ColumnMappings.Add(mapping);
-                }
-
-                await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
-            }
-            _eventsTable.Clear();
-        }
-
-        /// <summary>
-        /// Appends an audit with the specified execution elements.
-        /// </summary>
-        /// <param name="audit">The audit entry to append.</param>
-        /// <returns>A task for asynchronous programming.</returns>
-        public async Task AppendAsync(AuditEntry audit)
-        {
-            Argument.NotNull(audit, nameof(audit));
-
-            this.Emit(audit);
         }
 
         protected override void Dispose(bool disposing)
@@ -119,5 +111,23 @@ namespace Slalom.Stacks.Logging.MSSqlServer
             }
         }
 
+        protected override async Task EmitBatchAsync(IEnumerable<LogEntry> events)
+        {
+            this.Fill(events);
+
+            using (var copy = new SqlBulkCopy(_connection.Connection))
+            {
+                copy.DestinationTableName = string.Format(_options.LogTableName);
+                foreach (var column in _eventsTable.Columns)
+                {
+                    var columnName = ((DataColumn)column).ColumnName;
+                    var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
+                    copy.ColumnMappings.Add(mapping);
+                }
+
+                await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
+            }
+            _eventsTable.Clear();
+        }
     }
 }

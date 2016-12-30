@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Slalom.Stacks;
 using Slalom.Stacks.Configuration;
-using Slalom.Stacks.Logging.MSSqlServer;
+using Slalom.Stacks.Logging.SqlServer;
 using Slalom.Stacks.Test.Examples.Actors.Items.Add;
 using Slalom.Stacks.Test.Examples.Domain;
 using Slalom.Stacks.Test.Examples.Search;

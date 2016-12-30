@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     public class SqlConnectionManager : IDisposable
     {

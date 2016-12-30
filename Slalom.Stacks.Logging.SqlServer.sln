@@ -11,11 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{7E5CC4
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Slalom.Stacks.Logging.MSSqlServer", "src\Slalom.Stacks.Logging.MSSqlServer\Slalom.Stacks.Logging.MSSqlServer.xproj", "{FF1C51D6-D36B-457A-841B-6E1EC3E26846}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{19DDDD11-270F-4E5B-BE05-EE9A29DAFA35}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConsoleClient", "test\ConsoleClient\ConsoleClient.xproj", "{9D0CF9F2-03F1-41D3-B8A5-15F2EA0A3384}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Slalom.Stacks.Logging.SqlServer", "src\Slalom.Stacks.Logging.SqlServer\Slalom.Stacks.Logging.SqlServer.xproj", "{FF1C51D6-D36B-457A-841B-6E1EC3E26846}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,20 +23,20 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9D0CF9F2-03F1-41D3-B8A5-15F2EA0A3384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9D0CF9F2-03F1-41D3-B8A5-15F2EA0A3384}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D0CF9F2-03F1-41D3-B8A5-15F2EA0A3384}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D0CF9F2-03F1-41D3-B8A5-15F2EA0A3384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF1C51D6-D36B-457A-841B-6E1EC3E26846}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{FF1C51D6-D36B-457A-841B-6E1EC3E26846} = {2131ADB1-7076-4A4A-84AF-07BEB0B78164}
 		{9D0CF9F2-03F1-41D3-B8A5-15F2EA0A3384} = {19DDDD11-270F-4E5B-BE05-EE9A29DAFA35}
+		{FF1C51D6-D36B-457A-841B-6E1EC3E26846} = {2131ADB1-7076-4A4A-84AF-07BEB0B78164}
 	EndGlobalSection
 EndGlobal

@@ -1,7 +1,7 @@
 using System;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
     /// Options for the SQL Server Logging module.

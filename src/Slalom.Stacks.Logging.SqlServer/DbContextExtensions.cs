@@ -2,7 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
     /// Extensions for <see cref="DbContext"/> classes.

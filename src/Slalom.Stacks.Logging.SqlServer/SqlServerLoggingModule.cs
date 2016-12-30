@@ -3,7 +3,7 @@ using Autofac;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
     /// An Autofac module for the SQL Server Logging module.

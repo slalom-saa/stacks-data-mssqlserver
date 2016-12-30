@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Slalom.Stacks.Logging.MSSqlServer")]
+[assembly: AssemblyProduct("Slalom.Stacks.Logging.SqlServer")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible

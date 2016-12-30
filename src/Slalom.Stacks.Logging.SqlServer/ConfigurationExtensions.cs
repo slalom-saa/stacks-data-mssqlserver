@@ -2,7 +2,7 @@
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
     /// Contains extension methods to add SQL Server Logging blocks.

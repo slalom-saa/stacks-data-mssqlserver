@@ -15,7 +15,7 @@
 // Modifications copyright(C) 2017 Slalom Architect Academy
 
 using System;
-using Slalom.Stacks.Logging.MSSqlServer;
+using Slalom.Stacks.Logging.SqlServer;
 
 namespace Serilog.Sinks.PeriodicBatching
 {

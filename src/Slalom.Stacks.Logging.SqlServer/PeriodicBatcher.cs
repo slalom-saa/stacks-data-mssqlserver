@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using Serilog.Sinks.PeriodicBatching;
 using Slalom.Stacks.Messaging.Logging;
 
-namespace Slalom.Stacks.Logging.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     public abstract class PeriodicBatcher<T> : IDisposable
     {
