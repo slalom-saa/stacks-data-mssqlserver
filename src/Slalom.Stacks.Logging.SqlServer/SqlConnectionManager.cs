@@ -12,7 +12,6 @@ namespace Slalom.Stacks.Logging.SqlServer
         {
             _connection = new Lazy<SqlConnection>(() =>
             {
-                Console.WriteLine("...");
                 var connection = new SqlConnection(connectionString);
                 connection.Open();
                 return connection;
