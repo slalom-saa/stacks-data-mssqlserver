@@ -1,7 +1,7 @@
 ﻿using System;
 using Autofac;
 using Microsoft.Extensions.Configuration;
-using Slalom.Stacks.Communication.Logging;
+using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
@@ -36,22 +36,11 @@ namespace Slalom.Stacks.Logging.MSSqlServer
         {
             base.Load(builder);
 
-            builder.Register(c => new LoggingDbContext(_options))
-                   .OnPreparing(e =>
-                   {
-                       var configuration = e.Context.Resolve<IConfiguration>();
-                       _options.ConnectionString = configuration.GetOptionalSetting("Stacks:Logging:SQL:ConnectionString", _options.ConnectionString);
-                   }).OnActivated(e =>
-                   {
-                       e.Instance.EnsureMigrations();
-                       e.Instance.ChangeTracker.AutoDetectChangesEnabled = false;
-                   });
-
-            builder.Register(c => new AuditStore(c.Resolve<LoggingDbContext>()))
+            builder.Register(c => new AuditStore(_options.ConnectionString))
                    .AsImplementedInterfaces()
                    .AsSelf();
 
-            builder.Register<ILogStore>(c => new LogStore(c.Resolve<LoggingDbContext>()))
+            builder.Register<ILogStore>(c => new LogStore(_options.ConnectionString))
                    .AsImplementedInterfaces()
                    .AsSelf();
         }

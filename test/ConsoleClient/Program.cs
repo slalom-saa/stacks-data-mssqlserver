@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Slalom.Stacks;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.MSSqlServer;
-using Slalom.Stacks.Test.Commands.AddItem;
-using Slalom.Stacks.Test.Domain;
-using Slalom.Stacks.Test.Search;
+using Slalom.Stacks.Test.Examples.Actors.Items.Add;
+using Slalom.Stacks.Test.Examples.Domain;
+using Slalom.Stacks.Test.Examples.Search;
 
 // ReSharper disable AccessToDisposedClosure
 
@@ -33,7 +34,6 @@ namespace ConsoleClient
 
                 var count = 1000;
                 using (var container = new ApplicationContainer(typeof(Item)))
-
                 {
                     container.UseSqlServerAuditing();
 
@@ -42,14 +42,14 @@ namespace ConsoleClient
                     var tasks = new List<Task>(count);
                     Parallel.For(0, count, new ParallelOptions { MaxDegreeOfParallelism = 4 }, e =>
                     {
-                        tasks.Add(container.Bus.SendAsync(new AddItemCommand(DateTime.Now.Ticks.ToString())));
+                        tasks.Add(container.SendAsync(new AddItemCommand(DateTime.Now.Ticks.ToString())));
                     });
                     await Task.WhenAll(tasks);
 
                     watch.Stop();
 
                     var searchResultCount = container.Search.OpenQuery<ItemSearchResult>().Count();
-                    var entityCount = container.Domain.OpenQuery<Item>().Count();
+                    var entityCount = (await container.Domain.FindAsync<Item>()).Count();
                     if (searchResultCount != count || entityCount != count)
                     {
                         throw new Exception($"The execution did not have the expected results. {searchResultCount} search results and {entityCount} entities out of {count}.");
