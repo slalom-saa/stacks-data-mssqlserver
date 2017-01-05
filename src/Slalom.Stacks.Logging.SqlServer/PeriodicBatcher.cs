@@ -27,7 +27,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     {
         private readonly int _batchSizeLimit = 100;
 
-        protected ILogger Logger { get; set; }
+        public ILogger Logger { get; set; }
 
         readonly object _stateLock = new object();
 
@@ -150,13 +150,15 @@ namespace Slalom.Stacks.Logging.SqlServer
             }
             catch (Exception ex)
             {
-                this.Logger.Error(ex, "Exception while emitting periodic batch from {Instance}", this, ex);
+                this.Logger.Error(ex, "Exception while emitting periodic batch from {Instance}", this);
                 _status.MarkFailure();
             }
             finally
             {
                 if (_status.ShouldDropBatch)
+                {
                     _waitingBatch.Clear();
+                }
 
                 if (_status.ShouldDropQueue)
                 {
@@ -167,7 +169,9 @@ namespace Slalom.Stacks.Logging.SqlServer
                 lock (_stateLock)
                 {
                     if (!_unloading)
+                    {
                         this.SetTimer(_status.NextInterval);
+                    }
                 }
             }
         }

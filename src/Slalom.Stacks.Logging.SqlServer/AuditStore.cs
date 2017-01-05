@@ -16,7 +16,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
-        private readonly DataTable _eventsTable = CreateTable();
+        private readonly DataTable _eventsTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuditStore" /> class.
@@ -30,30 +30,77 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             _options = options;
             _connection = connection;
+
+            _eventsTable = this.CreateTable();
         }
 
-        public static DataTable CreateTable()
+        public DataTable CreateTable()
         {
-            var table = new DataTable();
+            var table = new DataTable(_options.AuditTableName);
             table.Columns.Add(new DataColumn
             {
                 DataType = typeof(int),
                 ColumnName = "Id",
-                AutoIncrement = true
+                AutoIncrement = true,
+                AllowDBNull = false
             });
-            table.Columns.Add("ApplicationName");
-            table.Columns.Add("CorrelationId");
-            table.Columns.Add("Environment");
-            table.Columns.Add("EventId");
-            table.Columns.Add("EventName");
-            table.Columns.Add("MachineName");
-            table.Columns.Add("Path");
-            table.Columns.Add("Payload");
-            table.Columns.Add("SessionId");
-            table.Columns.Add("ThreadId");
-            table.Columns.Add("TimeStamp");
-            table.Columns.Add("UserHostAddress");
-            table.Columns.Add("UserName");
+            table.PrimaryKey = new[] { table.Columns[0] };
+            table.Columns.Add(new DataColumn("ApplicationName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("CorrelationId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Environment")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("EventId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("EventTypeId")
+            {
+                DataType = typeof(int)
+            });
+            table.Columns.Add(new DataColumn("EventName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("MachineName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Path")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Payload")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("SessionId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("ThreadId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("TimeStamp")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
+            table.Columns.Add(new DataColumn("SourceAddress")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("UserName")
+            {
+                DataType = typeof(string)
+            });
             return table;
         }
 
@@ -66,6 +113,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                     item.CorrelationId,
                     item.Environment,
                     item.EventId,
+                    item.EventTypeId,
                     item.EventName,
                     item.MachineName,
                     item.Path,
@@ -73,7 +121,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                     item.SessionId,
                     item.ThreadId,
                     item.TimeStamp,
-                    item.UserHostAddress,
+                    item.SourceAddress,
                     item.UserName);
             }
             _eventsTable.AcceptChanges();

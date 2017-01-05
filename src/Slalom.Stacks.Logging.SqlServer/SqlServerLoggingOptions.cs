@@ -18,9 +18,9 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public TimeSpan Period { get; private set; } = TimeSpan.FromSeconds(5);
 
-        public string LogTableName { get; private set; } = "[dbo].[Logs]";
+        public string LogTableName { get; private set; } = "Logs";
 
-        public string AuditTableName { get; private set; } = "[dbo].[Audits]";
+        public string AuditTableName { get; private set; } = "Audits";
 
         /// <summary>
         /// Sets the connection string to use.
