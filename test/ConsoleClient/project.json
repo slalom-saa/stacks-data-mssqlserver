@@ -17,7 +17,7 @@
     "Slalom.Stacks.Logging.SqlServer": {
       "target": "project"
     },
-    "Slalom.Stacks.Test": "1.2.83"  },
+    "Slalom.Stacks.Test": "1.2.87"},
 
   "frameworks": {
     //"netcoreapp1.0": {

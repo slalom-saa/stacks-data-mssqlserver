@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog.Sinks.PeriodicBatching;
 using Slalom.Stacks.Messaging.Logging;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -71,7 +70,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="LogStore"/> class.
+        /// Finalizes an instance of the <see cref="RequestStore"/> class.
         /// </summary>
         ~PeriodicBatcher()
         {

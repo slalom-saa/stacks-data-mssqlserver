@@ -18,7 +18,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Serilog.Sinks.PeriodicBatching
+namespace Slalom.Stacks.Logging.SqlServer
 {
     class BoundedConcurrentQueue<T> 
     {

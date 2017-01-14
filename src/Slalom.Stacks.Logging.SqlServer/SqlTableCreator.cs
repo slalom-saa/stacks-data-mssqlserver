@@ -19,7 +19,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace Serilog.Sinks.MSSqlServer
+namespace Slalom.Stacks.Logging.SqlServer
 {
     internal class SqlTableCreator
     {

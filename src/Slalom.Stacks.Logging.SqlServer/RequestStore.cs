@@ -14,18 +14,18 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// A SQL Server <see cref="ILogStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.ILogStore" />
-    public class LogStore : PeriodicBatcher<LogEntry>, ILogStore
+    public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestStore
     {
         private readonly SqlConnectionManager _connection;
         private readonly DataTable _eventsTable;
         private readonly SqlServerLoggingOptions _options;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogStore" /> class.
+        /// Initializes a new instance of the <see cref="RequestStore" /> class.
         /// </summary>
         /// <param name="options">The configured options.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
-        public LogStore(SqlServerLoggingOptions options, SqlConnectionManager connection)
+        public RequestStore(SqlServerLoggingOptions options, SqlConnectionManager connection)
             : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
@@ -42,7 +42,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// </summary>
         /// <param name="entry">The log entry to append.</param>
         /// <returns>A task for asynchronous programming.</returns>
-        public async Task AppendAsync(LogEntry entry)
+        public async Task AppendAsync(RequestEntry entry)
         {
             Argument.NotNull(entry, nameof(entry));
 
@@ -51,7 +51,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public DataTable CreateTable()
         {
-            var table = new DataTable(_options.LogTableName);
+            var table = new DataTable(_options.RequestTableName);
 
             table.Columns.Add(new DataColumn
             {
@@ -136,7 +136,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             return table;
         }
 
-        public void Fill(IEnumerable<LogEntry> entries)
+        public void Fill(IEnumerable<RequestEntry> entries)
         {
             foreach (var item in entries)
             {
@@ -172,13 +172,13 @@ namespace Slalom.Stacks.Logging.SqlServer
             }
         }
 
-        protected override async Task EmitBatchAsync(IEnumerable<LogEntry> events)
+        protected override async Task EmitBatchAsync(IEnumerable<RequestEntry> events)
         {
             this.Fill(events);
 
             using (var copy = new SqlBulkCopy(_connection.Connection))
             {
-                copy.DestinationTableName = string.Format(_options.LogTableName);
+                copy.DestinationTableName = string.Format(_options.RequestTableName);
                 foreach (var column in _eventsTable.Columns)
                 {
                     var columnName = ((DataColumn)column).ColumnName;

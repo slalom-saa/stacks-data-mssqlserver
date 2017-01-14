@@ -18,7 +18,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public TimeSpan Period { get; private set; } = TimeSpan.FromSeconds(5);
 
-        public string LogTableName { get; private set; } = "Logs";
+        public string RequestTableName { get; private set; } = "Requests";
 
         public string AuditTableName { get; private set; } = "Audits";
 

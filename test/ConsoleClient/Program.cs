@@ -12,10 +12,10 @@ namespace Slalom.Stacks.ConsoleClient
     {
         public static void Main(string[] args)
         {
-           var runner = new ExampleRunner();
+            var runner = new ExampleRunner();
             runner.With(e => e.UseSqlServerAuditing());
             runner.Start();
-            
+
             Console.WriteLine("Running application.  Press any key to halt...");
             Console.ReadKey();
         }

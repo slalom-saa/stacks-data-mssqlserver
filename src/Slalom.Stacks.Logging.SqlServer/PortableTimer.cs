@@ -16,7 +16,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Serilog.Sinks.PeriodicBatching
+namespace Slalom.Stacks.Logging.SqlServer
 {
     class PortableTimer : IDisposable
     {

@@ -24,6 +24,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             configuration?.Invoke(options);
 
             instance.RegisterModule(new SqlServerLoggingModule(options));
+
             return instance;
         }
     }

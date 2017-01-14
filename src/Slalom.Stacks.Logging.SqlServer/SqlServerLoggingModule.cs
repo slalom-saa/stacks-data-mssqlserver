@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using Serilog.Sinks.MSSqlServer;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
@@ -50,7 +49,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                        table.CreateTable(c.Instance.CreateTable());
                    });
 
-            builder.Register(c => new LogStore(_options, c.Resolve<SqlConnectionManager>()))
+            builder.Register(c => new RequestStore(_options, c.Resolve<SqlConnectionManager>()))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
