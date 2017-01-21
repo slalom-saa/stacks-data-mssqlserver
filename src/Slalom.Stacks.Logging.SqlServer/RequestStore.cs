@@ -11,9 +11,9 @@ using Newtonsoft.Json;
 namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
-    /// A SQL Server <see cref="ILogStore"/> implementation.
+    /// A SQL Server <see cref="IRequestStore"/> implementation.
     /// </summary>
-    /// <seealso cref="Slalom.Stacks.Messaging.Logging.ILogStore" />
+    /// <seealso cref="Slalom.Stacks.Messaging.Logging.IRequestStore" />
     public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestStore
     {
         private readonly SqlConnectionManager _connection;
@@ -51,7 +51,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public DataTable CreateTable()
         {
-            var table = new DataTable(_options.RequestTableName);
+            var table = new DataTable(_options.RequestsTableName);
 
             table.Columns.Add(new DataColumn
             {
@@ -61,45 +61,49 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false,
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("ApplicationName")
+            table.Columns.Add(new DataColumn("RequestId")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("CommandId")
+            table.Columns.Add(new DataColumn("RequestName")
             {
                 DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("CommandName")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("Completed")
-            {
-                DataType = typeof(DateTimeOffset)
             });
             table.Columns.Add(new DataColumn("CorrelationId")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("Elapsed")
+            table.Columns.Add(new DataColumn("ApplicationName")
             {
-                DataType = typeof(TimeSpan)
+                DataType = typeof(string)
             });
             table.Columns.Add(new DataColumn("Environment")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("Exception")
+            table.Columns.Add(new DataColumn("TimeStamp")
             {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("IsSuccessful")
-            {
-                DataType = typeof(bool)
+                DataType = typeof(DateTimeOffset)
             });
             table.Columns.Add(new DataColumn("MachineName")
             {
                 DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("ThreadId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Started")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
+            table.Columns.Add(new DataColumn("Completed")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
+            table.Columns.Add(new DataColumn("Elapsed")
+            {
+                DataType = typeof(TimeSpan)
             });
             table.Columns.Add(new DataColumn("Path")
             {
@@ -109,15 +113,15 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("SessionId")
+            table.Columns.Add(new DataColumn("IsSuccessful")
+            {
+                DataType = typeof(bool)
+            });
+            table.Columns.Add(new DataColumn("ValidationErrors")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("Started")
-            {
-                DataType = typeof(DateTimeOffset)
-            });
-            table.Columns.Add(new DataColumn("ThreadId")
+            table.Columns.Add(new DataColumn("Exception")
             {
                 DataType = typeof(string)
             });
@@ -125,14 +129,15 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("SessionId")
+            {
+                DataType = typeof(string)
+            });
             table.Columns.Add(new DataColumn("UserName")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("ValidationErrors")
-            {
-                DataType = typeof(string)
-            });
+            
             return table;
         }
 
@@ -141,24 +146,25 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                    item.ApplicationName,
-                    item.CommandId,
-                    item.CommandName,
-                    item.Completed,
+                    item.RequestId,
+                    item.RequestName,
                     item.CorrelationId,
-                    item.Elapsed,
+                    item.ApplicationName,
                     item.Environment,
-                    item.RaisedException?.ToString(),
-                    item.IsSuccessful,
+                    item.TimeStamp,
                     item.MachineName,
+                    item.ThreadId,
+                    item.Started,
+                    item.Completed,
+                    item.Elapsed,
                     item.Path,
                     item.Payload,
-                    item.SessionId,
-                    item.Started,
-                    item.ThreadId,
+                    item.IsSuccessful,
+                    item.ValidationErrors.Any() ? JsonConvert.SerializeObject(item.ValidationErrors) : null,
+                    item.RaisedException?.ToString(),
                     item.SourceAddress,
-                    item.UserName,
-                    item.ValidationErrors.Any() ? JsonConvert.SerializeObject(item.ValidationErrors) : null);
+                    item.SessionId,
+                    item.UserName);
             }
             _eventsTable.AcceptChanges();
         }
@@ -178,7 +184,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             using (var copy = new SqlBulkCopy(_connection.Connection))
             {
-                copy.DestinationTableName = string.Format(_options.RequestTableName);
+                copy.DestinationTableName = string.Format(_options.RequestsTableName);
                 foreach (var column in _eventsTable.Columns)
                 {
                     var columnName = ((DataColumn)column).ColumnName;

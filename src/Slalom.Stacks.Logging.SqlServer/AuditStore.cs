@@ -36,7 +36,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public DataTable CreateTable()
         {
-            var table = new DataTable(_options.AuditTableName);
+            var table = new DataTable(_options.EventsTableName);
             table.Columns.Add(new DataColumn
             {
                 DataType = typeof(int),
@@ -45,19 +45,11 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("ApplicationName")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("CorrelationId")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("Environment")
-            {
-                DataType = typeof(string)
-            });
             table.Columns.Add(new DataColumn("EventId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("EventName")
             {
                 DataType = typeof(string)
             });
@@ -65,11 +57,27 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(int)
             });
-            table.Columns.Add(new DataColumn("EventName")
+            table.Columns.Add(new DataColumn("CorrelationId")
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("ApplicationName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Environment")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("TimeStamp")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
             table.Columns.Add(new DataColumn("MachineName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("ThreadId")
             {
                 DataType = typeof(string)
             });
@@ -81,19 +89,11 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("SessionId")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("ThreadId")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("TimeStamp")
-            {
-                DataType = typeof(DateTimeOffset)
-            });
             table.Columns.Add(new DataColumn("SourceAddress")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("SessionId")
             {
                 DataType = typeof(string)
             });
@@ -109,19 +109,19 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                    item.ApplicationName,
-                    item.CorrelationId,
-                    item.Environment,
                     item.EventId,
-                    item.EventTypeId,
                     item.EventName,
+                    item.EventTypeId,
+                    item.CorrelationId,
+                    item.ApplicationName,
+                    item.Environment,
+                    item.TimeStamp,
                     item.MachineName,
+                    item.ThreadId,
                     item.Path,
                     item.Payload,
-                    item.SessionId,
-                    item.ThreadId,
-                    item.TimeStamp,
                     item.SourceAddress,
+                    item.SessionId,
                     item.UserName);
             }
             _eventsTable.AcceptChanges();
@@ -133,7 +133,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             using (var copy = new SqlBulkCopy(_connection.Connection))
             {
-                copy.DestinationTableName = string.Format(_options.AuditTableName);
+                copy.DestinationTableName = string.Format(_options.EventsTableName);
                 foreach (var column in _eventsTable.Columns)
                 {
                     var columnName = ((DataColumn)column).ColumnName;

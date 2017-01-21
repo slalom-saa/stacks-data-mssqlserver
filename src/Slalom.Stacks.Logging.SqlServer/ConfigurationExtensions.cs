@@ -1,5 +1,4 @@
 ﻿using System;
-using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -15,7 +14,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="instance">The this instance.</param>
         /// <param name="configuration">The configuration routine.</param>
         /// <returns>Returns the container instance for method chaining.</returns>
-        public static ApplicationContainer UseSqlServerAuditing(this ApplicationContainer instance, Action<SqlServerLoggingOptions> configuration = null)
+        public static ApplicationContainer UseSqlServerLogging(this ApplicationContainer instance, Action<SqlServerLoggingOptions> configuration = null)
         {
             Argument.NotNull(instance, nameof(instance));
 
