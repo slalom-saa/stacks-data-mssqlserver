@@ -1,133 +1,212 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
-using Slalom.Stacks.Messaging.Logging;
+using System.Linq;
+using Serilog;
+using Serilog.Core;
+using Serilog.Sinks.MSSqlServer;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
-    /// <summary>
-    /// A SQL Server <see cref="ILogStore"/> implementation.
-    /// </summary>
-    /// <seealso cref="Slalom.Stacks.Messaging.Logging.ILogStore" />
-    public class LogStore : PeriodicBatcher<LogEntry>, ILogStore
+    public class LogStore : ILogger
     {
-        private readonly SqlConnectionManager _connection;
-        private readonly DataTable _eventsTable = CreateTable();
-        private readonly SqlServerLoggingOptions _options;
+        private readonly Logger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogStore" /> class.
         /// </summary>
-        /// <param name="options">The configured options.</param>
-        /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
-        public LogStore(SqlServerLoggingOptions options, SqlConnectionManager connection)
-            : base(options.BatchSize, options.Period)
+        /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
+        /// <param name="policies">The policies.</param>
+        public LogStore(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies)
         {
             Argument.NotNull(options, nameof(options));
-            Argument.NotNull(connection, nameof(connection));
 
-            _options = options;
-            _connection = connection;
+            var columnOptions = new ColumnOptions();
+
+            // Don't include the Properties XML column.
+            columnOptions.Store.Remove(StandardColumn.Properties);
+
+            // Do include the log event data as JSON.
+            columnOptions.Store.Add(StandardColumn.LogEvent);
+
+            var builder = new LoggerConfiguration()
+                .Destructure.With(policies.ToArray())
+                .WriteTo.MSSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions)
+                .MinimumLevel.Is(options.LogLevel);
+
+            _logger = builder.CreateLogger();
         }
 
         /// <summary>
-        /// Appends an audit with the specified execution elements.
+        /// Write a log event with the debug level and associated exception.
         /// </summary>
-        /// <param name="entry">The log entry to append.</param>
-        /// <returns>A task for asynchronous programming.</returns>
-        public async Task AppendAsync(LogEntry entry)
+        /// <param name="exception">Exception related to the event.</param>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Debug(Exception exception, string template, params object[] properties)
         {
-            Argument.NotNull(entry, nameof(entry));
-
-            this.Emit(entry);
+            _logger.Debug(exception, template, properties);
         }
 
-        public static DataTable CreateTable()
+        /// <summary>
+        /// Write a log event with the debug level.
+        /// </summary>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Debug(string template, params object[] properties)
         {
-            var table = new DataTable();
-            table.Columns.Add(new DataColumn
-            {
-                DataType = typeof(int),
-                ColumnName = "Id",
-                AutoIncrement = true
-            });
-            table.Columns.Add("ApplicationName");
-            table.Columns.Add("CommandId");
-            table.Columns.Add("CommandName");
-            table.Columns.Add("Completed");
-            table.Columns.Add("CorrelationId");
-            table.Columns.Add("Elapsed");
-            table.Columns.Add("Environment");
-            table.Columns.Add("Exception");
-            table.Columns.Add("IsSuccessful");
-            table.Columns.Add("MachineName");
-            table.Columns.Add("Path");
-            table.Columns.Add("Payload");
-            table.Columns.Add("SessionId");
-            table.Columns.Add("Started");
-            table.Columns.Add("ThreadId");
-            table.Columns.Add("UserHostAddress");
-            table.Columns.Add("UserName");
-            table.Columns.Add("ValidationErrors");
-            return table;
+            _logger.Debug(template, properties);
         }
 
-        public void Fill(IEnumerable<LogEntry> entries)
+        /// <summary>
+        /// Write a log event with the error level and associated exception.
+        /// </summary>
+        /// <param name="exception">Exception related to the event.</param>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Error(Exception exception, string template, params object[] properties)
         {
-            foreach (var item in entries)
+            _logger.Error(exception, template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the error level.
+        /// </summary>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Error(string template, params object[] properties)
+        {
+            _logger.Error(template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the fatal level and associated exception.
+        /// </summary>
+        /// <param name="exception">Exception related to the event.</param>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Fatal(Exception exception, string template, params object[] properties)
+        {
+            _logger.Fatal(exception, template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the fatal level.
+        /// </summary>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Fatal(string template, params object[] properties)
+        {
+            _logger.Fatal(template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the information level and associated exception.
+        /// </summary>
+        /// <param name="exception">Exception related to the event.</param>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Information(Exception exception, string template, params object[] properties)
+        {
+            _logger.Information(exception, template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the information level.
+        /// </summary>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Information(string template, params object[] properties)
+        {
+            _logger.Information(template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the verbose level and associated exception.
+        /// </summary>
+        /// <param name="exception">Exception related to the event.</param>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Verbose(Exception exception, string template, params object[] properties)
+        {
+            _logger.Verbose(exception, template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the verbose level.
+        /// </summary>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Verbose(string template, params object[] properties)
+        {
+            _logger.Verbose(template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the warning level and associated exception.
+        /// </summary>
+        /// <param name="exception">Exception related to the event.</param>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Warning(Exception exception, string template, params object[] properties)
+        {
+            _logger.Warning(exception, template, properties);
+        }
+
+        /// <summary>
+        /// Write a log event with the warning level.
+        /// </summary>
+        /// <param name="template">Message template describing the event.</param>
+        /// <param name="properties">Objects positionally formatted into the message template.</param>
+        public void Warning(string template, params object[] properties)
+        {
+            _logger.Warning(template, properties);
+        }
+
+        #region IDisposable Implementation
+
+        bool _disposed;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="SerilogLogger"/> class.
+        /// </summary>
+        ~LogStore()
+        {
+            this.Dispose(false);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
             {
-                _eventsTable.Rows.Add(null,
-                    item.ApplicationName,
-                    item.CommandId,
-                    item.CommandName,
-                    item.Completed,
-                    item.CorrelationId,
-                    item.Elapsed,
-                    item.Environment,
-                    item.RaisedException?.ToString(),
-                    item.IsSuccessful,
-                    item.MachineName,
-                    item.Path,
-                    item.Payload,
-                    item.SessionId,
-                    item.Started,
-                    item.ThreadId,
-                    item.UserHostAddress,
-                    item.UserName,
-                    item.ValidationErrors);
+                return;
             }
-            _eventsTable.AcceptChanges();
-        }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
             if (disposing)
             {
-                _eventsTable.Dispose();
+                // free other managed objects that implement IDisposable only
+                _logger.Dispose();
             }
+
+            // release any unmanaged objects
+            // set the object references to null
+
+            _disposed = true;
         }
 
-        protected override async Task EmitBatchAsync(IEnumerable<LogEntry> events)
-        {
-            this.Fill(events);
-
-            using (var copy = new SqlBulkCopy(_connection.Connection))
-            {
-                copy.DestinationTableName = string.Format(_options.LogTableName);
-                foreach (var column in _eventsTable.Columns)
-                {
-                    var columnName = ((DataColumn)column).ColumnName;
-                    var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
-                    copy.ColumnMappings.Add(mapping);
-                }
-
-                await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
-            }
-            _eventsTable.Clear();
-        }
+        #endregion
     }
 }

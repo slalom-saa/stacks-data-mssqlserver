@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Autofac;
+using Serilog.Core;
+using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 
@@ -37,13 +40,35 @@ namespace Slalom.Stacks.Logging.SqlServer
             builder.Register(c => new SqlConnectionManager(_options.ConnectionString))
                    .SingleInstance();
 
+            builder.Register(c => new DestructuringPolicy()).SingleInstance()
+                   .AsImplementedInterfaces();
+
+            builder.Register(c => new LogStore(_options, c.Resolve<IEnumerable<IDestructuringPolicy>>()))
+                   .AsImplementedInterfaces()
+                   .SingleInstance()
+                   .PreserveExistingDefaults();
+
             builder.Register(c => new AuditStore(_options, c.Resolve<SqlConnectionManager>()))
                    .AsImplementedInterfaces()
-                   .AsSelf();
+                   .AsSelf()
+                   .SingleInstance()
+                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .OnActivated(c =>
+                   {
+                       var table = new SqlTableCreator(_options.ConnectionString);
+                       table.CreateTable(c.Instance.CreateTable());
+                   });
 
-            builder.Register<ILogStore>(c => new LogStore(_options, c.Resolve<SqlConnectionManager>()))
+            builder.Register(c => new RequestStore(_options, c.Resolve<SqlConnectionManager>()))
                    .AsImplementedInterfaces()
-                   .AsSelf();
+                   .AsSelf()
+                   .SingleInstance()
+                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .OnActivated(c =>
+                   {
+                       var table = new SqlTableCreator(_options.ConnectionString);
+                       table.CreateTable(c.Instance.CreateTable());
+                   });
         }
     }
 }

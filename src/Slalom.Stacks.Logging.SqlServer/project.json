@@ -1,21 +1,18 @@
 {
-  "version": "1.2.10-*",
+  "version": "1.3.13-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
     "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "requireLicenseAcceptance": true,
-    "summary": "SQL Server Logging blocks for Slalom.Stacks.",
+    "summary": "SQL Server Logging blocks for Stacks.",
     "files": {
       "include": [ "Tools", "Lib" ]
     }
   },
   "dependencies": {
     "NETStandard.Library": "1.6.1",
-    "Microsoft.EntityFrameworkCore": "1.1.0",
-    "Microsoft.EntityFrameworkCore.Relational": "1.1.0",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
-    "Slalom.Stacks": "1.2.57"
+    "Slalom.Stacks": "1.3.5"
   },
 
   "buildOptions": {
@@ -24,20 +21,12 @@
   },
 
    "frameworks": {
-    //"netcoreapp1.0": {
-    //  "imports": [
-    //    "dotnet54",
-    //    "portable-net45+win8"
-    //  ],
-    //  "dependencies": {
-
-    //    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
-    //  }
-    //},
     "net461": {
       "frameworkAssemblies": {
       },
       "dependencies": {
+        "Serilog.Settings.Configuration": "2.2.0",
+        "Serilog.Sinks.MSSqlServer": "4.2.0"
       },
       "imports": "dnxcore50"
     }
