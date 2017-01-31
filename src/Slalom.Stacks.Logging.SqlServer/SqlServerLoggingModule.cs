@@ -59,7 +59,20 @@ namespace Slalom.Stacks.Logging.SqlServer
                        table.CreateTable(c.Instance.CreateTable());
                    });
 
-            builder.Register(c => new RequestStore(_options, c.Resolve<SqlConnectionManager>()))
+            builder.Register(c => new RequestStore(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
+                   .AsImplementedInterfaces()
+                   .AsSelf()
+                   .SingleInstance()
+                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .OnActivated(c =>
+                   {
+                       var table = new SqlTableCreator(_options.ConnectionString);
+                       table.CreateTable(c.Instance.CreateTable());
+                   });
+
+            builder.Register(c => new IPInformationProvider());
+
+            builder.Register(c => new LocationStore(c.Resolve<SqlConnectionManager>(), c.Resolve<IPInformationProvider>()))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
