@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using Serilog;
 using Serilog.Core;
@@ -31,7 +33,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             var builder = new LoggerConfiguration()
                 .Destructure.With(policies.ToArray())
-                .WriteTo.MSSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions)
+                .WriteTo.StacksSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions)
                 .MinimumLevel.Is(options.LogLevel);
 
             _logger = builder.CreateLogger();
@@ -45,7 +47,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Debug(Exception exception, string template, params object[] properties)
         {
-            _logger.Debug(exception, template, properties);
+            _logger.Debug(exception, template, new { User = "adsf" });
         }
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Debug(string template, params object[] properties)
         {
-            _logger.Debug(template, properties);
+            _logger.Debug(template, new { User = "adsf" });
         }
 
         /// <summary>
