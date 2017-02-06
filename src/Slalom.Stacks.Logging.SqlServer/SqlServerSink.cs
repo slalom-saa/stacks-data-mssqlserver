@@ -1,23 +1,8 @@
-﻿// Copyright 2013 Serilog Contributors 
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Modifications copyright(C) 2017 Slalom Architect Academy
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,26 +11,10 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.MSSqlServer;
 using Serilog.Sinks.PeriodicBatching;
-using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Runtime;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
-    public class ContextManager
-    {
-        private static IExecutionContextResolver _factory;
-
-        [ThreadStatic]
-        private static ExecutionContext _context;
-
-        public static ExecutionContext CurrentContext => _context ?? (_context = _factory.Resolve());
-
-        public ContextManager(IExecutionContextResolver factory)
-        {
-            _factory = factory;
-        }
-    }
-
     /// <summary>
     ///     Writes log events as rows in a table of MSSqlServer database.
     /// </summary>
@@ -62,17 +31,18 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// </summary>
         public static readonly TimeSpan DefaultPeriod = TimeSpan.FromSeconds(5);
 
+        private readonly HashSet<string> _additionalDataColumnNames;
+        private readonly ColumnOptions _columnOptions;
+
         readonly string _connectionString;
 
         readonly DataTable _eventsTable;
         readonly IFormatProvider _formatProvider;
-        readonly string _tableName;
-        private readonly ColumnOptions _columnOptions;
-
-        private readonly HashSet<string> _additionalDataColumnNames;
+        private readonly IExecutionContextResolver _contextResolver;
+        private readonly LocationStore _locations;
 
         private readonly JsonFormatter _jsonFormatter;
-
+        readonly string _tableName;
 
         /// <summary>
         ///     Construct a sink posting to the specified database.
@@ -91,8 +61,10 @@ namespace Slalom.Stacks.Logging.SqlServer
             TimeSpan period,
             IFormatProvider formatProvider,
             bool autoCreateSqlTable = false,
-            ColumnOptions columnOptions = null
-            )
+            ColumnOptions columnOptions = null,
+            IExecutionContextResolver contextResolver = null,
+            LocationStore locations = null
+        )
             : base(batchPostingLimit, period)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -104,6 +76,8 @@ namespace Slalom.Stacks.Logging.SqlServer
             _connectionString = connectionString;
             _tableName = tableName;
             _formatProvider = formatProvider;
+            _contextResolver = contextResolver;
+            _locations = locations;
             _columnOptions = columnOptions ?? new ColumnOptions();
             if (_columnOptions.AdditionalDataColumns != null)
                 _additionalDataColumnNames = new HashSet<string>(_columnOptions.AdditionalDataColumns.Select(c => c.ColumnName), StringComparer.OrdinalIgnoreCase);
@@ -112,21 +86,34 @@ namespace Slalom.Stacks.Logging.SqlServer
                 _jsonFormatter = new JsonFormatter(formatProvider: formatProvider);
 
             // Prepare the data table
-            _eventsTable = CreateDataTable();
+            _eventsTable = this.CreateDataTable();
 
             if (autoCreateSqlTable)
             {
                 try
                 {
-                    SqlTableCreator tableCreator = new SqlTableCreator(connectionString);
+                    var tableCreator = new SqlTableCreator(connectionString);
                     tableCreator.CreateTable(_eventsTable);
                 }
                 catch (Exception ex)
                 {
-                    SelfLog.WriteLine("Exception {0} caught while creating table {1} to the database specified in the Connection string.", (object)ex, (object)tableName);
+                    SelfLog.WriteLine("Exception {0} caught while creating table {1} to the database specified in the Connection string.", ex, tableName);
                 }
-
             }
+        }
+
+        public ExecutionContext Context => _contextResolver?.Resolve() ?? new NullExecutionContext();
+
+        /// <summary>
+        ///     Disposes the connection
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected override void Dispose(bool disposing)
+        {
+            if (_eventsTable != null)
+                _eventsTable.Dispose();
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -141,7 +128,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             // Copy the events to the data table
-            FillDataTable(events);
+            this.FillDataTable(events);
 
             try
             {
@@ -149,8 +136,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                 {
                     await cn.OpenAsync().ConfigureAwait(false);
                     using (var copy = _columnOptions.DisableTriggers
-                            ? new SqlBulkCopy(cn)
-                            : new SqlBulkCopy(cn, SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.FireTriggers, null)
+                                          ? new SqlBulkCopy(cn)
+                                          : new SqlBulkCopy(cn, SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.FireTriggers, null)
                     )
                     {
                         copy.DestinationTableName = _tableName;
@@ -164,6 +151,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                         await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
                     }
                 }
+
+                await _locations.UpdateAsync(_eventsTable.Rows.OfType<DataRow>().Select(e => e["SourceAddress"].ToString()).Distinct().ToArray()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -174,6 +163,81 @@ namespace Slalom.Stacks.Logging.SqlServer
                 // Processed the items, clear for the next run
                 _eventsTable.Clear();
             }
+        }
+
+        /// <summary>
+        ///     Mapping values from properties which have a corresponding data row.
+        ///     Matching is done based on Column name and property key
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="properties"></param>
+        private void ConvertPropertiesToColumn(DataRow row, IReadOnlyDictionary<string, LogEventPropertyValue> properties)
+        {
+            foreach (var property in properties)
+            {
+                if (!row.Table.Columns.Contains(property.Key))
+                    continue;
+
+                var columnName = property.Key;
+                var columnType = row.Table.Columns[columnName].DataType;
+                object conversion;
+
+                var scalarValue = property.Value as ScalarValue;
+                if (scalarValue == null)
+                {
+                    row[columnName] = property.Value.ToString();
+                    continue;
+                }
+
+                if (scalarValue.Value == null && row.Table.Columns[columnName].AllowDBNull)
+                {
+                    row[columnName] = DBNull.Value;
+                    continue;
+                }
+
+                if (TryChangeType(scalarValue.Value, columnType, out conversion))
+                {
+                    row[columnName] = conversion;
+                }
+                else
+                {
+                    row[columnName] = property.Value.ToString();
+                }
+            }
+        }
+
+        private string ConvertPropertiesToXmlStructure(IEnumerable<KeyValuePair<string, LogEventPropertyValue>> properties)
+        {
+            var options = _columnOptions.Properties;
+
+            if (options.ExcludeAdditionalProperties)
+                properties = properties.Where(p => !_additionalDataColumnNames.Contains(p.Key));
+
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("<{0}>", options.RootElementName);
+
+            foreach (var property in properties)
+            {
+                var value = XmlPropertyFormatter.Simplify(property.Value, options);
+                if (options.OmitElementIfEmpty && string.IsNullOrEmpty(value))
+                {
+                    continue;
+                }
+
+                if (options.UsePropertyKeyAsElementName)
+                {
+                    sb.AppendFormat("<{0}>{1}</{0}>", XmlPropertyFormatter.GetValidElementName(property.Key), value);
+                }
+                else
+                {
+                    sb.AppendFormat("<{0} key='{1}'>{2}</{0}>", options.PropertyElementName, property.Key, value);
+                }
+            }
+
+            sb.AppendFormat("</{0}>", options.RootElementName);
+
+            return sb.ToString();
         }
 
         DataTable CreateDataTable()
@@ -332,10 +396,10 @@ namespace Slalom.Stacks.Logging.SqlServer
                             row[_columnOptions.Exception.ColumnName ?? "Exception"] = logEvent.Exception != null ? logEvent.Exception.ToString() : null;
                             break;
                         case StandardColumn.Properties:
-                            row[_columnOptions.Properties.ColumnName ?? "Properties"] = ConvertPropertiesToXmlStructure(logEvent.Properties);
+                            row[_columnOptions.Properties.ColumnName ?? "Properties"] = this.ConvertPropertiesToXmlStructure(logEvent.Properties);
                             break;
                         case StandardColumn.LogEvent:
-                            row[_columnOptions.LogEvent.ColumnName ?? "LogEvent"] = LogEventToJson(logEvent);
+                            row[_columnOptions.LogEvent.ColumnName ?? "LogEvent"] = this.LogEventToJson(logEvent);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -344,57 +408,22 @@ namespace Slalom.Stacks.Logging.SqlServer
 
                 if (_columnOptions.AdditionalDataColumns != null)
                 {
-                    ConvertPropertiesToColumn(row, logEvent.Properties);
+                    this.ConvertPropertiesToColumn(row, logEvent.Properties);
                 }
 
-                // TODO: Add context values
-                row["SourceAddress"] = ContextManager.CurrentContext?.SourceAddress;
-                row["Session"] = ContextManager.CurrentContext?.SessionId;
-                row["UserName"] = ContextManager.CurrentContext?.User?.Identity?.Name;
-                row["CorrelationId"] = ContextManager.CurrentContext?.CorrelationId;
-                row["ApplicationName"] = ContextManager.CurrentContext?.ApplicationName;
-                row["Environment"] = ContextManager.CurrentContext?.Environment;
-                row["ThreadId"] = ContextManager.CurrentContext?.ThreadId;
-                row["MachineName"] = ContextManager.CurrentContext?.MachineName;
+                row["SourceAddress"] = this.Context.SourceAddress;
+                row["Session"] = this.Context.SessionId;
+                row["UserName"] = this.Context.User?.Identity?.Name;
+                row["CorrelationId"] = this.Context.CorrelationId;
+                row["ApplicationName"] = this.Context.ApplicationName;
+                row["Environment"] = this.Context.Environment;
+                row["ThreadId"] = this.Context.ThreadId;
+                row["MachineName"] = this.Context.MachineName;
 
                 _eventsTable.Rows.Add(row);
             }
 
             _eventsTable.AcceptChanges();
-        }
-
-        private string ConvertPropertiesToXmlStructure(IEnumerable<KeyValuePair<string, LogEventPropertyValue>> properties)
-        {
-            var options = _columnOptions.Properties;
-
-            if (options.ExcludeAdditionalProperties)
-                properties = properties.Where(p => !_additionalDataColumnNames.Contains(p.Key));
-
-            var sb = new StringBuilder();
-
-            sb.AppendFormat("<{0}>", options.RootElementName);
-
-            foreach (var property in properties)
-            {
-                var value = XmlPropertyFormatter.Simplify(property.Value, options);
-                if (options.OmitElementIfEmpty && string.IsNullOrEmpty(value))
-                {
-                    continue;
-                }
-
-                if (options.UsePropertyKeyAsElementName)
-                {
-                    sb.AppendFormat("<{0}>{1}</{0}>", XmlPropertyFormatter.GetValidElementName(property.Key), value);
-                }
-                else
-                {
-                    sb.AppendFormat("<{0} key='{1}'>{2}</{0}>", options.PropertyElementName, property.Key, value);
-                }
-            }
-
-            sb.AppendFormat("</{0}>", options.RootElementName);
-
-            return sb.ToString();
         }
 
         private string LogEventToJson(LogEvent logEvent)
@@ -406,50 +435,9 @@ namespace Slalom.Stacks.Logging.SqlServer
             }
 
             var sb = new StringBuilder();
-            using (var writer = new System.IO.StringWriter(sb))
+            using (var writer = new StringWriter(sb))
                 _jsonFormatter.Format(logEvent, writer);
             return sb.ToString();
-        }
-
-        /// <summary>
-        ///     Mapping values from properties which have a corresponding data row.
-        ///     Matching is done based on Column name and property key
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="properties"></param>
-        private void ConvertPropertiesToColumn(DataRow row, IReadOnlyDictionary<string, LogEventPropertyValue> properties)
-        {
-            foreach (var property in properties)
-            {
-                if (!row.Table.Columns.Contains(property.Key))
-                    continue;
-
-                var columnName = property.Key;
-                var columnType = row.Table.Columns[columnName].DataType;
-                object conversion;
-
-                var scalarValue = property.Value as ScalarValue;
-                if (scalarValue == null)
-                {
-                    row[columnName] = property.Value.ToString();
-                    continue;
-                }
-
-                if (scalarValue.Value == null && row.Table.Columns[columnName].AllowDBNull)
-                {
-                    row[columnName] = DBNull.Value;
-                    continue;
-                }
-
-                if (TryChangeType(scalarValue.Value, columnType, out conversion))
-                {
-                    row[columnName] = conversion;
-                }
-                else
-                {
-                    row[columnName] = property.Value.ToString();
-                }
-            }
         }
 
         /// <summary>
@@ -470,18 +458,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        ///     Disposes the connection
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing)
-        {
-            if (_eventsTable != null)
-                _eventsTable.Dispose();
-
-            base.Dispose(disposing);
         }
     }
 }

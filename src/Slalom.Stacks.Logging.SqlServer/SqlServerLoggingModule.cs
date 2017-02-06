@@ -4,6 +4,7 @@ using Autofac;
 using Serilog.Core;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Messaging.Logging;
+using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -43,12 +44,12 @@ namespace Slalom.Stacks.Logging.SqlServer
             builder.Register(c => new DestructuringPolicy()).SingleInstance()
                    .AsImplementedInterfaces();
 
-            builder.Register(c => new LogStore(_options, c.Resolve<IEnumerable<IDestructuringPolicy>>()))
+            builder.Register(c => new TraceStore(_options, c.Resolve<IEnumerable<IDestructuringPolicy>>(), c.Resolve<IExecutionContextResolver>(), c.Resolve<LocationStore>()))
                    .AsImplementedInterfaces()
                    .SingleInstance()
                    .PreserveExistingDefaults();
 
-            builder.Register(c => new AuditStore(_options, c.Resolve<SqlConnectionManager>()))
+            builder.Register(c => new AuditStore(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()

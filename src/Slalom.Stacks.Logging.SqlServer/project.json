@@ -1,5 +1,5 @@
 {
-  "version": "1.3.14-*",
+  "version": "1.3.15-*",
   "authors": [ "Slalom Architect Academy" ],
   "packOptions": {
     "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
@@ -13,7 +13,7 @@
   "dependencies": {
     "MaxMind.GeoIP2": "2.7.2",
     "NETStandard.Library": "1.6.1",
-    "Slalom.Stacks": "1.3.14"
+    "Slalom.Stacks": "1.3.18"
   },
 
   "buildOptions": {

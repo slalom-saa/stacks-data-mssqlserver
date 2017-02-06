@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
 using System.Linq;
 using Serilog;
 using Serilog.Core;
 using Serilog.Sinks.MSSqlServer;
+using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
-    public class LogStore : ILogger
+    public class TraceStore : ILogger
     {
         private readonly Logger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogStore" /> class.
+        /// Initializes a new instance of the <see cref="TraceStore" /> class.
         /// </summary>
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
-        /// <param name="policies">The policies.</param>
-        public LogStore(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies)
+        /// <param name="policies">The configured <see cref="IDestructuringPolicy"/> instances.</param>
+        /// <param name="contextResolver">The configured <see cref="IExecutionContextResolver" />.</param>
+        /// <param name="locations">The configured <see cref="LocationStore" />.</param>
+        public TraceStore(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, IExecutionContextResolver contextResolver, LocationStore locations)
         {
             Argument.NotNull(options, nameof(options));
 
@@ -33,7 +34,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             var builder = new LoggerConfiguration()
                 .Destructure.With(policies.ToArray())
-                .WriteTo.StacksSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions)
+                .WriteTo.StacksSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions, contextResolver: contextResolver, locations: locations)
                 .MinimumLevel.Is(options.LogLevel);
 
             _logger = builder.CreateLogger();
@@ -47,7 +48,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Debug(Exception exception, string template, params object[] properties)
         {
-            _logger.Debug(exception, template, new { User = "adsf" });
+            _logger.Debug(exception, template, properties);
         }
 
         /// <summary>
@@ -57,7 +58,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Debug(string template, params object[] properties)
         {
-            _logger.Debug(template, new { User = "adsf" });
+            _logger.Debug(template, properties);
         }
 
         /// <summary>
@@ -181,7 +182,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <summary>
         /// Finalizes an instance of the <see cref="SerilogLogger"/> class.
         /// </summary>
-        ~LogStore()
+        ~TraceStore()
         {
             this.Dispose(false);
         }

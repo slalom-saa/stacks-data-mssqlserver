@@ -7,6 +7,7 @@ using Serilog.Configuration;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
+using Slalom.Stacks.Runtime;
 
 // Copyright 2014 Serilog Contributors
 // 
@@ -57,7 +58,9 @@ namespace Slalom.Stacks.Logging.SqlServer
             TimeSpan? period = null,
             IFormatProvider formatProvider = null,
             bool autoCreateSqlTable = false,
-            ColumnOptions columnOptions = null
+            ColumnOptions columnOptions = null,
+            IExecutionContextResolver contextResolver = null,
+            LocationStore locations = null
             )
         {
             if (loggerConfiguration == null) throw new ArgumentNullException("loggerConfiguration");
@@ -87,7 +90,9 @@ namespace Slalom.Stacks.Logging.SqlServer
                     defaultedPeriod,
                     formatProvider,
                     autoCreateSqlTable,
-                    columnOptions
+                    columnOptions,
+                    contextResolver,
+                    locations
                     ),
                 restrictedToMinimumLevel);
         }

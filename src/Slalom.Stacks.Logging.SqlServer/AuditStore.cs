@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
@@ -16,20 +17,24 @@ namespace Slalom.Stacks.Logging.SqlServer
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
+        private readonly LocationStore _locations;
         private readonly DataTable _eventsTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuditStore" /> class.
         /// </summary>
-        /// <param name="options">The configured <see cref="SqlServerLoggingOptions"/>.</param>
+        /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
-        public AuditStore(SqlServerLoggingOptions options, SqlConnectionManager connection) : base(options.BatchSize, options.Period)
+        /// <param name="locations">The configured <see cref="LocationStore" />.</param>
+        public AuditStore(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(connection, nameof(connection));
+            Argument.NotNull(locations, nameof(locations));
 
             _options = options;
             _connection = connection;
+            _locations = locations;
 
             _eventsTable = this.CreateTable();
         }
@@ -129,7 +134,9 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         protected override async Task EmitBatchAsync(IEnumerable<AuditEntry> events)
         {
-            this.Fill(events);
+            var list = events as IList<AuditEntry> ?? events.ToList();
+
+            this.Fill(list);
 
             using (var copy = new SqlBulkCopy(_connection.Connection))
             {
@@ -144,6 +151,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                 await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
             }
             _eventsTable.Clear();
+
+            await _locations.UpdateAsync(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
         }
 
         /// <summary>
