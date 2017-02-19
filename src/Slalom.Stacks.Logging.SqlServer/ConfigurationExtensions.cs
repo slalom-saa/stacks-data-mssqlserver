@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -14,7 +15,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="instance">The this instance.</param>
         /// <param name="configuration">The configuration routine.</param>
         /// <returns>Returns the container instance for method chaining.</returns>
-        public static ApplicationContainer UseSqlServerLogging(this ApplicationContainer instance, Action<SqlServerLoggingOptions> configuration = null)
+        public static Stack UseSqlServerLogging(this Stack instance, Action<SqlServerLoggingOptions> configuration = null)
         {
             Argument.NotNull(instance, nameof(instance));
 
@@ -22,7 +23,10 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             configuration?.Invoke(options);
 
-            instance.RegisterModule(new SqlServerLoggingModule(options));
+            instance.Use(builder =>
+            {
+                builder.RegisterModule(new SqlServerLoggingModule(options));
+            });
 
             return instance;
         }
