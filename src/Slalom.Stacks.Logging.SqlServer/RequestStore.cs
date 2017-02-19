@@ -70,7 +70,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("RequestName")
+            table.Columns.Add(new DataColumn("Actor")
             {
                 DataType = typeof(string)
             });
@@ -152,7 +152,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 _eventsTable.Rows.Add(null,
                     item.RequestId,
-                    item.RequestName,
+                    item.Actor,
                     item.CorrelationId,
                     item.ApplicationName,
                     item.Environment,

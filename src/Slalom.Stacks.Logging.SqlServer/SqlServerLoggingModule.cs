@@ -53,7 +53,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
-                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .PropertiesAutowired(AllProperties.Instance)
                    .OnActivated(c =>
                    {
                        var table = new SqlTableCreator(_options.ConnectionString);
@@ -64,7 +64,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
-                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .PropertiesAutowired(AllProperties.Instance)
                    .OnActivated(c =>
                    {
                        var table = new SqlTableCreator(_options.ConnectionString);
@@ -77,7 +77,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
-                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .PropertiesAutowired(AllProperties.Instance)
                    .OnActivated(c =>
                    {
                        var table = new SqlTableCreator(_options.ConnectionString);

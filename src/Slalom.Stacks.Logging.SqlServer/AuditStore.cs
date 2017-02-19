@@ -13,7 +13,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// A SQL Server <see cref="IAuditStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.IAuditStore" />
-    public class AuditStore : PeriodicBatcher<AuditEntry>, IAuditStore
+    public class AuditStore : PeriodicBatcher<EventEntry>, IEventStore
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
@@ -109,7 +109,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             return table;
         }
 
-        public void Fill(IEnumerable<AuditEntry> entries)
+        public void Fill(IEnumerable<EventEntry> entries)
         {
             foreach (var item in entries)
             {
@@ -132,9 +132,9 @@ namespace Slalom.Stacks.Logging.SqlServer
             _eventsTable.AcceptChanges();
         }
 
-        protected override async Task EmitBatchAsync(IEnumerable<AuditEntry> events)
+        protected override async Task EmitBatchAsync(IEnumerable<EventEntry> events)
         {
-            var list = events as IList<AuditEntry> ?? events.ToList();
+            var list = events as IList<EventEntry> ?? events.ToList();
 
             this.Fill(list);
 
@@ -160,7 +160,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// </summary>
         /// <param name="audit">The audit entry to append.</param>
         /// <returns>A task for asynchronous programming.</returns>
-        public async Task AppendAsync(AuditEntry audit)
+        public async Task AppendAsync(EventEntry audit)
         {
             Argument.NotNull(audit, nameof(audit));
 

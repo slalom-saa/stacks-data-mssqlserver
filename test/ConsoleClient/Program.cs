@@ -8,9 +8,7 @@ using Slalom.Stacks.Logging;
 using Slalom.Stacks.Logging.SqlServer;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Runtime;
-using Slalom.Stacks.Test.Examples;
-using Slalom.Stacks.Test.Examples.Actors.Items.Add;
-using Slalom.Stacks.Test.Examples.Actors.Items.Search;
+using Slalom.Stacks.TestStack.Examples.Actors.Items.Add;
 using ExecutionContext = Slalom.Stacks.Runtime.ExecutionContext;
 
 namespace Slalom.Stacks.ConsoleClient
@@ -34,7 +32,7 @@ namespace Slalom.Stacks.ConsoleClient
                     o.WithTracing(Serilog.Events.LogEventLevel.Verbose);
                 });
 
-                container.SendAsync(new AddItemCommand("asdfasf")).Wait();
+                container.Send(new AddItemCommand("asdfasf")).Wait();
 
                 Console.WriteLine("...");
                 Console.ReadLine();

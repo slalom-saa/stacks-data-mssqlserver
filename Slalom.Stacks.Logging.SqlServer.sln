@@ -8,7 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{7E5CC466-76B3-4E17-866D-CF69FB4AA61C}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
+		assets\Package.ps1 = assets\Package.ps1
 		README.md = README.md
+		assets\Restore.ps1 = assets\Restore.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{19DDDD11-270F-4E5B-BE05-EE9A29DAFA35}"
