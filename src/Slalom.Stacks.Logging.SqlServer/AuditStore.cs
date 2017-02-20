@@ -10,9 +10,9 @@ using Slalom.Stacks.Validation;
 namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
-    /// A SQL Server <see cref="IAuditStore"/> implementation.
+    /// A SQL Server <see cref="IEventStore"/> implementation.
     /// </summary>
-    /// <seealso cref="Slalom.Stacks.Messaging.Logging.IAuditStore" />
+    /// <seealso cref="IEventStore" />
     public class AuditStore : PeriodicBatcher<EventEntry>, IEventStore
     {
         private readonly SqlServerLoggingOptions _options;
