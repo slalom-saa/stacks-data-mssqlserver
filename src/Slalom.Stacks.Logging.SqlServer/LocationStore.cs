@@ -132,7 +132,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             if (disposing)
             {
                 // free other managed objects that implement IDisposable only
-                _locationsTable.Dispose();
+                _locationsTable?.Dispose();
             }
 
             // release any unmanaged objects

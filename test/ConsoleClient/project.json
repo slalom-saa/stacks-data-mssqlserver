@@ -13,7 +13,7 @@
     "Slalom.Stacks.Logging.SqlServer": {
       "target": "project"
     },
-    "Slalom.Stacks.TestStack": "1.3.46"
+    "Slalom.Stacks.TestStack": "1.4.25"
   },
   "frameworks": {
     "net461": {

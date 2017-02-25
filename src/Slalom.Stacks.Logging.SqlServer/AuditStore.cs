@@ -10,10 +10,10 @@ using Slalom.Stacks.Validation;
 namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
-    /// A SQL Server <see cref="IEventStore"/> implementation.
+    /// A SQL Server <see cref="IResponseStore"/> implementation.
     /// </summary>
-    /// <seealso cref="IEventStore" />
-    public class AuditStore : PeriodicBatcher<EventEntry>, IEventStore
+    /// <seealso cref="IResponseStore" />
+    public class AuditStore : PeriodicBatcher<ResponseEntry>, IResponseStore
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
@@ -41,7 +41,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public DataTable CreateTable()
         {
-            var table = new DataTable(_options.EventsTableName);
+            var table = new DataTable(_options.ResponsesTableName);
             table.Columns.Add(new DataColumn
             {
                 DataType = typeof(int),
@@ -50,19 +50,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("EventId")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("EventName")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("EventTypeId")
-            {
-                DataType = typeof(int)
-            });
-            table.Columns.Add(new DataColumn("CorrelationId")
+            table.Columns.Add(new DataColumn("ActorType")
             {
                 DataType = typeof(string)
             });
@@ -70,77 +58,94 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("Completed")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
+            table.Columns.Add(new DataColumn("CorrelationId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Elapsed")
+            {
+                DataType = typeof(TimeSpan)
+            });
             table.Columns.Add(new DataColumn("Environment")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("TimeStamp")
+            table.Columns.Add(new DataColumn("EventBody")
             {
-                DataType = typeof(DateTimeOffset)
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("EventType")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Exception")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("IsSuccessful")
+            {
+                DataType = typeof(bool)
             });
             table.Columns.Add(new DataColumn("MachineName")
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("MessageId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Started")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
             table.Columns.Add(new DataColumn("ThreadId")
             {
-                DataType = typeof(string)
+                DataType = typeof(int)
             });
-            table.Columns.Add(new DataColumn("Path")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("Payload")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("SourceAddress")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("SessionId")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("UserName")
+            table.Columns.Add(new DataColumn("ValidationErrors")
             {
                 DataType = typeof(string)
             });
             return table;
         }
 
-        public void Fill(IEnumerable<EventEntry> entries)
+        public void Fill(IEnumerable<ResponseEntry> entries)
         {
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                    item.EventId,
-                    item.EventName,
-                    item.EventTypeId,
-                    item.CorrelationId,
-                    item.ApplicationName,
-                    item.Environment,
-                    item.TimeStamp,
-                    item.MachineName,
-                    item.ThreadId,
-                    item.Path,
-                    item.Payload,
-                    item.SourceAddress,
-                    item.SessionId,
-                    item.UserName);
+                   item.ActorType,
+                   item.ApplicationName,
+                   item.Completed,
+                   item.CorrelationId,
+                   item.Elapsed,
+                   item.Environment,
+                   item.EventBody,
+                   item.EventType,
+                   item.Exception,
+                   item.IsSuccessful,
+                   item.MachineName,
+                   item.MessageId,
+                   item.Started,
+                   item.ThreadId,
+                   item.ValidationErrors.Any() ? item.ValidationErrors.Select(e => e.ToString()) : null);
             }
             _eventsTable.AcceptChanges();
         }
 
-        protected override async Task EmitBatchAsync(IEnumerable<EventEntry> events)
+        protected override async Task EmitBatchAsync(IEnumerable<ResponseEntry> events)
         {
-            var list = events as IList<EventEntry> ?? events.ToList();
+            var list = events as IList<ResponseEntry> ?? events.ToList();
 
             this.Fill(list);
 
             using (var copy = new SqlBulkCopy(_connection.Connection))
             {
-                copy.DestinationTableName = string.Format(_options.EventsTableName);
+                copy.DestinationTableName = string.Format(_options.ResponsesTableName);
                 foreach (var column in _eventsTable.Columns)
                 {
                     var columnName = ((DataColumn)column).ColumnName;
@@ -151,8 +156,6 @@ namespace Slalom.Stacks.Logging.SqlServer
                 await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
             }
             _eventsTable.Clear();
-
-            await _locations.UpdateAsync(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -160,11 +163,13 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// </summary>
         /// <param name="audit">The audit entry to append.</param>
         /// <returns>A task for asynchronous programming.</returns>
-        public async Task AppendAsync(EventEntry audit)
+        public Task Append(ResponseEntry audit)
         {
             Argument.NotNull(audit, nameof(audit));
 
             this.Emit(audit);
+
+            return Task.FromResult(0);
         }
 
         protected override void Dispose(bool disposing)

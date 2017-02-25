@@ -20,7 +20,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="policies">The configured <see cref="IDestructuringPolicy"/> instances.</param>
         /// <param name="contextResolver">The configured <see cref="IExecutionContextResolver" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public TraceStore(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, IExecutionContextResolver contextResolver, LocationStore locations)
+        public TraceStore(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, IExecutionContext contextResolver, LocationStore locations)
         {
             Argument.NotNull(options, nameof(options));
 

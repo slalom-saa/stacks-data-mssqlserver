@@ -9,7 +9,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// </summary>
     public class SqlServerLoggingOptions
     {
-        internal string EventsTableName { get; private set; } = "Events";
+        internal string ResponsesTableName { get; private set; } = "Responses";
 
         internal int BatchSize { get; private set; } = 1000;
 
@@ -21,7 +21,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         internal LogEventLevel LogLevel { get; private set; } = LogEventLevel.Warning;
 
-        internal string TraceTableName { get; private set; } = "Trace";
+        internal string TraceTableName { get; private set; } = "Traces";
 
         internal TimeSpan Period { get; private set; } = TimeSpan.FromSeconds(5);
 

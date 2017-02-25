@@ -59,7 +59,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             IFormatProvider formatProvider = null,
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
-            IExecutionContextResolver contextResolver = null,
+            IExecutionContext contextResolver = null,
             LocationStore locations = null
             )
         {
