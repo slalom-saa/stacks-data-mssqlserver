@@ -8,12 +8,9 @@
   },
 
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "1.1.0",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
     "Slalom.Stacks.Logging.SqlServer": {
       "target": "project"
-    },
-    "Slalom.Stacks.TestStack": "1.4.25"
+    }
   },
   "frameworks": {
     "net461": {

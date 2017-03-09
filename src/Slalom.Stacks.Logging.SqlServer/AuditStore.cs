@@ -50,7 +50,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("ActorType")
+            table.Columns.Add(new DataColumn("Service")
             {
                 DataType = typeof(string)
             });
@@ -118,7 +118,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                   item.ActorType,
+                   item.Service,
                    item.ApplicationName,
                    item.Completed,
                    item.CorrelationId,
