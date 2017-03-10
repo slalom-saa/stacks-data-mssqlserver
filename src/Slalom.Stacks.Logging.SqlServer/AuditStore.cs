@@ -50,7 +50,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("ActorType")
+            table.Columns.Add(new DataColumn("Service")
             {
                 DataType = typeof(string)
             });

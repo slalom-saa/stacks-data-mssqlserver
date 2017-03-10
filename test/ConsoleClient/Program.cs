@@ -38,6 +38,8 @@ namespace Slalom.Stacks.ConsoleClient
                     stack.UseSqlServerLogging();
 
                     stack.Send("", new AddCommand()).Wait();
+
+                    Console.ReadKey();
                 }
             }
             catch(Exception exception)
