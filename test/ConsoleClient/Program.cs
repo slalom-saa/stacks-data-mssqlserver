@@ -9,6 +9,7 @@ using Slalom.Stacks.Logging.SqlServer;
 using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Runtime;
+using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.ConsoleClient
 {

@@ -1,4 +1,10 @@
-﻿param (
+﻿<#
+.SYNOPSIS
+    Packages the SQL Server Logging packages.
+#>
+
+
+param (
     $Configuration = "DEBUG"
 )
 

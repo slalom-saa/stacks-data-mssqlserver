@@ -10,10 +10,10 @@ using Slalom.Stacks.Validation;
 namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
-    /// A SQL Server <see cref="IResponseStore"/> implementation.
+    /// A SQL Server <see cref="IResponseLog"/> implementation.
     /// </summary>
-    /// <seealso cref="IResponseStore" />
-    public class AuditStore : PeriodicBatcher<ResponseEntry>, IResponseStore
+    /// <seealso cref="IResponseLog" />
+    public class AuditStore : PeriodicBatcher<ResponseEntry>, IResponseLog
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
@@ -74,14 +74,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("EventBody")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("EventType")
-            {
-                DataType = typeof(string)
-            });
             table.Columns.Add(new DataColumn("Exception")
             {
                 DataType = typeof(string)
@@ -118,14 +110,12 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                   item.ActorType,
+                   item.Service,
                    item.ApplicationName,
                    item.Completed,
                    item.CorrelationId,
                    item.Elapsed,
-                   item.Environment,
-                   item.EventBody,
-                   item.EventType,
+                   item.EnvironmentName,
                    item.Exception,
                    item.IsSuccessful,
                    item.MachineName,
@@ -181,5 +171,9 @@ namespace Slalom.Stacks.Logging.SqlServer
             }
         }
 
+        public Task<IEnumerable<ResponseEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

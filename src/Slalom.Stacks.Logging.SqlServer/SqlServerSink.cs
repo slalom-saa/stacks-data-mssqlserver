@@ -53,7 +53,6 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         readonly DataTable _eventsTable;
         readonly IFormatProvider _formatProvider;
-        private readonly IExecutionContext _contextResolver;
         private readonly LocationStore _locations;
 
         private readonly JsonFormatter _jsonFormatter;
@@ -77,7 +76,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             IFormatProvider formatProvider,
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
-            IExecutionContext contextResolver = null,
             LocationStore locations = null
         )
             : base(batchPostingLimit, period)
@@ -91,7 +89,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             _connectionString = connectionString;
             _tableName = tableName;
             _formatProvider = formatProvider;
-            _contextResolver = contextResolver;
             _locations = locations;
             _columnOptions = columnOptions ?? new ColumnOptions();
             if (_columnOptions.AdditionalDataColumns != null)
@@ -116,9 +113,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 }
             }
         }
-
-        public ExecutionContext Context => _contextResolver?.Resolve() ?? new NullExecutionContext();
-
+        
         /// <summary>
         ///     Disposes the connection
         /// </summary>
@@ -426,10 +421,10 @@ namespace Slalom.Stacks.Logging.SqlServer
                     this.ConvertPropertiesToColumn(row, logEvent.Properties);
                 }
 
-                row["ApplicationName"] = this.Context.ApplicationName;
-                row["Environment"] = this.Context.Environment;
-                row["ThreadId"] = this.Context.ThreadId;
-                row["MachineName"] = this.Context.MachineName;
+                //row["ApplicationName"] = this.Context.ApplicationName;
+                //row["Environment"] = this.Context.Environment;
+                //row["ThreadId"] = this.Context.ThreadId;
+                //row["MachineName"] = this.Context.MachineName;
 
                 _eventsTable.Rows.Add(row);
             }

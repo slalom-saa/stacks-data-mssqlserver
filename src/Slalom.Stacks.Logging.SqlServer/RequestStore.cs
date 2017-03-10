@@ -7,6 +7,7 @@ using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 using System.Linq;
 using Newtonsoft.Json;
+using Slalom.Stacks.Messaging;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
@@ -14,7 +15,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// A SQL Server <see cref="IRequestStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.IRequestStore" />
-    public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestStore
+    public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestLog
     {
         private readonly SqlConnectionManager _connection;
         private readonly LocationStore _locations;
@@ -43,13 +44,13 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <summary>
         /// Appends an audit with the specified execution elements.
         /// </summary>
-        /// <param name="entry">The log entry to append.</param>
+        /// <param name="request">The request.</param>
         /// <returns>A task for asynchronous programming.</returns>
-        public Task Append(RequestEntry entry)
+        public Task Append(Request request)
         {
-            Argument.NotNull(entry, nameof(entry));
+            Argument.NotNull(request, nameof(request));
 
-            this.Emit(entry);
+            this.Emit(new RequestEntry(request));
 
             return Task.FromResult(0);
         }
@@ -157,6 +158,11 @@ namespace Slalom.Stacks.Logging.SqlServer
             _eventsTable.Clear();
 
             await _locations.UpdateAsync(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
+        }
+
+        public Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
+        {
+            throw new NotImplementedException();
         }
     }
 }
