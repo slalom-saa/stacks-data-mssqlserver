@@ -9,17 +9,17 @@ using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
-    public class TraceStore : ILogger
+    public class SqlLogger : ILogger
     {
         private readonly Logger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TraceStore" /> class.
+        /// Initializes a new instance of the <see cref="SqlLogger" /> class.
         /// </summary>
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="policies">The configured <see cref="IDestructuringPolicy"/> instances.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public TraceStore(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, LocationStore locations)
+        public SqlLogger(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, LocationStore locations)
         {
             Argument.NotNull(options, nameof(options));
 
@@ -181,7 +181,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <summary>
         /// Finalizes an instance of the <see cref="SerilogLogger"/> class.
         /// </summary>
-        ~TraceStore()
+        ~SqlLogger()
         {
             this.Dispose(false);
         }

@@ -442,7 +442,9 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
+            {
                 _jsonFormatter.Format(logEvent, writer);
+            }
             return sb.ToString();
         }
 
