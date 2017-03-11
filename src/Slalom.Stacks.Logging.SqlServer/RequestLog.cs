@@ -15,7 +15,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// A SQL Server <see cref="IRequestStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.IRequestStore" />
-    public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestLog
+    public class RequestLog : PeriodicBatcher<RequestEntry>, IRequestLog
     {
         private readonly SqlConnectionManager _connection;
         private readonly LocationStore _locations;
@@ -23,12 +23,12 @@ namespace Slalom.Stacks.Logging.SqlServer
         private readonly SqlServerLoggingOptions _options;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestStore" /> class.
+        /// Initializes a new instance of the <see cref="RequestLog" /> class.
         /// </summary>
         /// <param name="options">The configured options.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public RequestStore(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations)
+        public RequestLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations)
             : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));

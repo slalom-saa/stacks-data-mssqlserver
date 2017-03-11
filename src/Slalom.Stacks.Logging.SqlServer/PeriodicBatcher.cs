@@ -70,7 +70,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="RequestStore"/> class.
+        /// Finalizes an instance of the <see cref="RequestLog"/> class.
         /// </summary>
         ~PeriodicBatcher()
         {
