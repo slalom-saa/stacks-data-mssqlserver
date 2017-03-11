@@ -60,7 +60,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                        table.CreateTable(c.Instance.CreateTable());
                    });
 
-            builder.Register(c => new RequestStore(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
+            builder.Register(c => new RequestLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()

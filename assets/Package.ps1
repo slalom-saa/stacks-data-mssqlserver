@@ -5,26 +5,23 @@
 
 
 param (
-    $Configuration = "DEBUG"
+    $Configuration = "DEBUG",
+    $IncrementVersion = $true
 )
 
 function Go ($Path) {
     Push-Location $Path
 
     Remove-Item .\Bin -Force -Recurse
-    Increment-Version
+        if ($IncrementVersion) {
+        Increment-Version
+    }
     dotnet build
     dotnet pack --no-build --configuration $Configuration
     copy .\bin\$Configuration\*.nupkg c:\nuget\
 
     Pop-Location
 }
-
-Push-Location $PSScriptRoot
-
-Go ..\src\Slalom.Stacks.Logging.SqlServer
-
-Pop-Location
 
 
 
@@ -61,3 +58,10 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
       $line
   }) -Join "`n"
 }
+
+Push-Location $PSScriptRoot
+
+Go ..\src\Slalom.Stacks.Logging.SqlServer
+
+Pop-Location
+

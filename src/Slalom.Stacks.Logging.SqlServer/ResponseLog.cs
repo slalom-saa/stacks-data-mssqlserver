@@ -122,7 +122,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    item.MessageId,
                    item.Started,
                    item.ThreadId,
-                   item.ValidationErrors.Any() ? item.ValidationErrors.Select(e => e.ToString()) : null);
+                   item.ValidationErrors.Any() ? String.Join("  ", item.ValidationErrors.Select(e => e.Type + ": " + e.Message)) : null);
             }
             _eventsTable.AcceptChanges();
         }
