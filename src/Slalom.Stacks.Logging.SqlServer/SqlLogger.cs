@@ -6,6 +6,8 @@ using Serilog.Core;
 using Serilog.Sinks.MSSqlServer;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
+using Serilog.Context;
+using Slalom.Stacks.Messaging;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
@@ -33,6 +35,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             var builder = new LoggerConfiguration()
                 .Destructure.With(policies.ToArray())
+                .Enrich.FromLogContext()
                 .WriteTo.StacksSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions, locations: locations)
                 .MinimumLevel.Is(options.LogLevel);
 
@@ -68,7 +71,18 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Error(Exception exception, string template, params object[] properties)
         {
-            _logger.Error(exception, template, properties);
+            var context = properties.OfType<ExecutionContext>().FirstOrDefault();
+            if (context != null)
+            {
+                using (var log = LogContext.PushProperty("Context", context, true))
+                {
+                    _logger.Error(exception, template, properties);
+                }
+            }
+            else
+            {
+                _logger.Error(exception, template, properties);
+            }
         }
 
         /// <summary>

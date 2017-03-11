@@ -49,7 +49,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .SingleInstance()
                    .PreserveExistingDefaults();
 
-            builder.Register(c => new AuditStore(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
+            builder.Register(c => new ResponseLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()

@@ -39,6 +39,7 @@ namespace Slalom.Stacks.ConsoleClient
 
                     stack.Send("", new AddCommand()).Wait();
 
+                    Console.WriteLine("...");
                     Console.ReadKey();
                 }
             }

@@ -13,7 +13,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// A SQL Server <see cref="IResponseLog"/> implementation.
     /// </summary>
     /// <seealso cref="IResponseLog" />
-    public class AuditStore : PeriodicBatcher<ResponseEntry>, IResponseLog
+    public class ResponseLog : PeriodicBatcher<ResponseEntry>, IResponseLog
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
@@ -21,12 +21,12 @@ namespace Slalom.Stacks.Logging.SqlServer
         private readonly DataTable _eventsTable;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuditStore" /> class.
+        /// Initializes a new instance of the <see cref="ResponseLog" /> class.
         /// </summary>
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public AuditStore(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations) : base(options.BatchSize, options.Period)
+        public ResponseLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(connection, nameof(connection));

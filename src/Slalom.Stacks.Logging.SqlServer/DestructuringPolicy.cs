@@ -67,6 +67,21 @@ namespace Slalom.Stacks.Logging.SqlServer
                 return true;
             }
 
+            if (value is ExecutionContext)
+            {
+                var context = (ExecutionContext)value;
+                var items = new[]
+                {
+                    new LogEventProperty("CorrelationId", new ScalarValue(context.Request.CorrelationId)),
+                    new LogEventProperty("SessionId", new ScalarValue(context.Request.SessionId)),
+                    new LogEventProperty("User", new ScalarValue(context.Request.User.Identity?.Name))
+                };
+
+                result = new StructureValue(items);
+
+                return true;
+            }
+
             var target = new List<LogEventProperty>();
             foreach (var item in properties)
             {
@@ -95,6 +110,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                     target.Add(new LogEventProperty(item.Name, new ScalarValue(null)));
                     continue;
                 }
+
+
 
                 if (piValue is Exception)
                 {
