@@ -1,5 +1,5 @@
 {
-  "version": "1.4.2-*",
+  "version": "1.5.0-*",
   "authors": [
     "Slalom Architect Academy"
   ],
@@ -24,7 +24,7 @@
   "dependencies": {
     "MaxMind.GeoIP2": "2.7.2",
     "NETStandard.Library": "1.6.1",
-    "Slalom.Stacks": "1.4.99"
+    "Slalom.Stacks": "1.5.1"
   },
   "buildOptions": {
     "additionalArguments": [

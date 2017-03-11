@@ -337,7 +337,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            eventsTable.Columns.Add(new DataColumn("Environment")
+            eventsTable.Columns.Add(new DataColumn("EnvironmentName")
             {
                 DataType = typeof(string)
             });
@@ -368,7 +368,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string),
                 MaxLength = -1,
-                ColumnName = "Session"
+                ColumnName = "SessionId"
             });
 
             // Create an array for DataColumn objects.
@@ -421,15 +421,27 @@ namespace Slalom.Stacks.Logging.SqlServer
                     this.ConvertPropertiesToColumn(row, logEvent.Properties);
                 }
 
-                //row["ApplicationName"] = this.Context.ApplicationName;
-                //row["Environment"] = this.Context.Environment;
-                //row["ThreadId"] = this.Context.ThreadId;
-                //row["MachineName"] = this.Context.MachineName;
+                SetColumnValue(logEvent, row, "UserName");
+                SetColumnValue(logEvent, row, "CorrelationId");
+                SetColumnValue(logEvent, row, "SourceAddress");
+                SetColumnValue(logEvent, row, "ApplicationName");
+                SetColumnValue(logEvent, row, "EnvironmentName");
+                SetColumnValue(logEvent, row, "MachineName");
+                SetColumnValue(logEvent, row, "ThreadId");
+                SetColumnValue(logEvent, row, "SessionId");
 
                 _eventsTable.Rows.Add(row);
             }
 
             _eventsTable.AcceptChanges();
+        }
+
+        private static void SetColumnValue(LogEvent logEvent, DataRow row, string name)
+        {
+            if (logEvent.Properties.Keys.Contains(name))
+            {
+                row[name] = ((ScalarValue)logEvent.Properties[name]).Value;
+            }
         }
 
         private string LogEventToJson(LogEvent logEvent)
