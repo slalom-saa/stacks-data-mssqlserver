@@ -44,16 +44,16 @@ namespace Slalom.Stacks.Logging.SqlServer
             builder.Register(c => new DestructuringPolicy()).SingleInstance()
                    .AsImplementedInterfaces();
 
-            builder.Register(c => new TraceStore(_options, c.Resolve<IEnumerable<IDestructuringPolicy>>(), c.Resolve<IExecutionContextResolver>(), c.Resolve<LocationStore>()))
+            builder.Register(c => new SqlLogger(_options, c.Resolve<IEnumerable<IDestructuringPolicy>>(), c.Resolve<LocationStore>()))
                    .AsImplementedInterfaces()
                    .SingleInstance()
                    .PreserveExistingDefaults();
 
-            builder.Register(c => new AuditStore(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
+            builder.Register(c => new ResponseLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
-                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .PropertiesAutowired(AllProperties.Instance)
                    .OnActivated(c =>
                    {
                        var table = new SqlTableCreator(_options.ConnectionString);
@@ -64,7 +64,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
-                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .PropertiesAutowired(AllProperties.Instance)
                    .OnActivated(c =>
                    {
                        var table = new SqlTableCreator(_options.ConnectionString);
@@ -77,7 +77,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
-                   .PropertiesAutowired(new AllUnsetPropertySelector())
+                   .PropertiesAutowired(AllProperties.Instance)
                    .OnActivated(c =>
                    {
                        var table = new SqlTableCreator(_options.ConnectionString);

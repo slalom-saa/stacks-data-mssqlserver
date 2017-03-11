@@ -1,29 +1,42 @@
 {
-  "version": "1.3.15-*",
-  "authors": [ "Slalom Architect Academy" ],
+  "version": "1.5.0-*",
+  "authors": [
+    "Slalom Architect Academy"
+  ],
   "packOptions": {
-    "tags": [ "slalom", "stacks", "blocks", "logging", "sql" ],
+    "tags": [
+      "slalom",
+      "stacks",
+      "blocks",
+      "logging",
+      "sql"
+    ],
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "requireLicenseAcceptance": true,
     "summary": "SQL Server Logging blocks for Stacks.",
     "files": {
-      "include": [ "Tools", "Lib" ]
+      "include": [
+        "Tools",
+        "Lib"
+      ]
     }
   },
   "dependencies": {
     "MaxMind.GeoIP2": "2.7.2",
     "NETStandard.Library": "1.6.1",
-    "Slalom.Stacks": "1.3.18"
+    "Slalom.Stacks": "1.5.1"
   },
-
   "buildOptions": {
-    "additionalArguments": [ "/ruleset:../../assets/stacks.ruleset", "/additionalfile:../../assets/stylecop.json" ],
+    "additionalArguments": [
+      "/ruleset:../../assets/stacks.ruleset",
+      "/additionalfile:../../assets/stylecop.json"
+    ],
     "xmlDoc": true
   },
-
-   "frameworks": {
+  "frameworks": {
     "net461": {
       "frameworkAssemblies": {
+        
       },
       "dependencies": {
         "Serilog.Settings.Configuration": "2.2.0",
@@ -32,11 +45,9 @@
       "imports": "dnxcore50"
     }
   },
-
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final"
   },
-
   "scripts": {
     "postcompile": [
       "dotnet pack --no-build --configuration %compile:Configuration%",

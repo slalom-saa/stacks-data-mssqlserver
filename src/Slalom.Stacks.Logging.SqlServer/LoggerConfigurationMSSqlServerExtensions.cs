@@ -59,7 +59,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             IFormatProvider formatProvider = null,
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
-            IExecutionContextResolver contextResolver = null,
             LocationStore locations = null
             )
         {
@@ -91,7 +90,6 @@ namespace Slalom.Stacks.Logging.SqlServer
                     formatProvider,
                     autoCreateSqlTable,
                     columnOptions,
-                    contextResolver,
                     locations
                     ),
                 restrictedToMinimumLevel);

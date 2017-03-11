@@ -7,6 +7,7 @@ using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 using System.Linq;
 using Newtonsoft.Json;
+using Slalom.Stacks.Messaging;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
@@ -14,7 +15,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// A SQL Server <see cref="IRequestStore"/> implementation.
     /// </summary>
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.IRequestStore" />
-    public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestStore
+    public class RequestStore : PeriodicBatcher<RequestEntry>, IRequestLog
     {
         private readonly SqlConnectionManager _connection;
         private readonly LocationStore _locations;
@@ -43,13 +44,13 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <summary>
         /// Appends an audit with the specified execution elements.
         /// </summary>
-        /// <param name="entry">The log entry to append.</param>
+        /// <param name="request">The request.</param>
         /// <returns>A task for asynchronous programming.</returns>
-        public Task AppendAsync(RequestEntry entry)
+        public Task Append(Request request)
         {
-            Argument.NotNull(entry, nameof(entry));
+            Argument.NotNull(request, nameof(request));
 
-            this.Emit(entry);
+            this.Emit(new RequestEntry(request));
 
             return Task.FromResult(0);
         }
@@ -66,71 +67,27 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false,
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("RequestId")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("RequestName")
-            {
-                DataType = typeof(string)
-            });
             table.Columns.Add(new DataColumn("CorrelationId")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("ApplicationName")
+            table.Columns.Add(new DataColumn("MessageBody")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("Environment")
+            table.Columns.Add(new DataColumn("MessageId")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("TimeStamp")
-            {
-                DataType = typeof(DateTimeOffset)
-            });
-            table.Columns.Add(new DataColumn("MachineName")
+            table.Columns.Add(new DataColumn("MessageType")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("ThreadId")
+            table.Columns.Add(new DataColumn("Parent")
             {
                 DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("Started")
-            {
-                DataType = typeof(DateTimeOffset)
-            });
-            table.Columns.Add(new DataColumn("Completed")
-            {
-                DataType = typeof(DateTimeOffset)
-            });
-            table.Columns.Add(new DataColumn("Elapsed")
-            {
-                DataType = typeof(TimeSpan)
             });
             table.Columns.Add(new DataColumn("Path")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("Payload")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("IsSuccessful")
-            {
-                DataType = typeof(bool)
-            });
-            table.Columns.Add(new DataColumn("ValidationErrors")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("Exception")
-            {
-                DataType = typeof(string)
-            });
-            table.Columns.Add(new DataColumn("SourceAddress")
             {
                 DataType = typeof(string)
             });
@@ -138,11 +95,18 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("SourceAddress")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("TimeStamp")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
             table.Columns.Add(new DataColumn("UserName")
             {
                 DataType = typeof(string)
             });
-            
             return table;
         }
 
@@ -151,24 +115,15 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                    item.RequestId,
-                    item.RequestName,
                     item.CorrelationId,
-                    item.ApplicationName,
-                    item.Environment,
-                    item.TimeStamp,
-                    item.MachineName,
-                    item.ThreadId,
-                    item.Started,
-                    item.Completed,
-                    item.Elapsed,
+                    item.MessageBody,
+                    item.MessageId,
+                    item.MessageType,
+                    item.Parent,
                     item.Path,
-                    item.Payload,
-                    item.IsSuccessful,
-                    item.ValidationErrors.Any() ? JsonConvert.SerializeObject(item.ValidationErrors) : null,
-                    item.RaisedException?.ToString(),
-                    item.SourceAddress,
                     item.SessionId,
+                    item.SourceAddress,
+                    item.TimeStamp,
                     item.UserName);
             }
             _eventsTable.AcceptChanges();
@@ -203,6 +158,11 @@ namespace Slalom.Stacks.Logging.SqlServer
             _eventsTable.Clear();
 
             await _locations.UpdateAsync(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
+        }
+
+        public Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
+        {
+            throw new NotImplementedException();
         }
     }
 }

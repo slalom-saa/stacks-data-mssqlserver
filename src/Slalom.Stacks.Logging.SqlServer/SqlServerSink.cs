@@ -53,7 +53,6 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         readonly DataTable _eventsTable;
         readonly IFormatProvider _formatProvider;
-        private readonly IExecutionContextResolver _contextResolver;
         private readonly LocationStore _locations;
 
         private readonly JsonFormatter _jsonFormatter;
@@ -77,7 +76,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             IFormatProvider formatProvider,
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
-            IExecutionContextResolver contextResolver = null,
             LocationStore locations = null
         )
             : base(batchPostingLimit, period)
@@ -91,7 +89,6 @@ namespace Slalom.Stacks.Logging.SqlServer
             _connectionString = connectionString;
             _tableName = tableName;
             _formatProvider = formatProvider;
-            _contextResolver = contextResolver;
             _locations = locations;
             _columnOptions = columnOptions ?? new ColumnOptions();
             if (_columnOptions.AdditionalDataColumns != null)
@@ -116,9 +113,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 }
             }
         }
-
-        public ExecutionContext Context => _contextResolver?.Resolve() ?? new NullExecutionContext();
-
+        
         /// <summary>
         ///     Disposes the connection
         /// </summary>
@@ -342,7 +337,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            eventsTable.Columns.Add(new DataColumn("Environment")
+            eventsTable.Columns.Add(new DataColumn("EnvironmentName")
             {
                 DataType = typeof(string)
             });
@@ -373,7 +368,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string),
                 MaxLength = -1,
-                ColumnName = "Session"
+                ColumnName = "SessionId"
             });
 
             // Create an array for DataColumn objects.
@@ -426,19 +421,27 @@ namespace Slalom.Stacks.Logging.SqlServer
                     this.ConvertPropertiesToColumn(row, logEvent.Properties);
                 }
 
-                row["SourceAddress"] = this.Context.SourceAddress;
-                row["Session"] = this.Context.SessionId;
-                row["UserName"] = this.Context.User?.Identity?.Name;
-                row["CorrelationId"] = this.Context.CorrelationId;
-                row["ApplicationName"] = this.Context.ApplicationName;
-                row["Environment"] = this.Context.Environment;
-                row["ThreadId"] = this.Context.ThreadId;
-                row["MachineName"] = this.Context.MachineName;
+                SetColumnValue(logEvent, row, "UserName");
+                SetColumnValue(logEvent, row, "CorrelationId");
+                SetColumnValue(logEvent, row, "SourceAddress");
+                SetColumnValue(logEvent, row, "ApplicationName");
+                SetColumnValue(logEvent, row, "EnvironmentName");
+                SetColumnValue(logEvent, row, "MachineName");
+                SetColumnValue(logEvent, row, "ThreadId");
+                SetColumnValue(logEvent, row, "SessionId");
 
                 _eventsTable.Rows.Add(row);
             }
 
             _eventsTable.AcceptChanges();
+        }
+
+        private static void SetColumnValue(LogEvent logEvent, DataRow row, string name)
+        {
+            if (logEvent.Properties.Keys.Contains(name))
+            {
+                row[name] = ((ScalarValue)logEvent.Properties[name]).Value;
+            }
         }
 
         private string LogEventToJson(LogEvent logEvent)
@@ -451,7 +454,9 @@ namespace Slalom.Stacks.Logging.SqlServer
 
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
+            {
                 _jsonFormatter.Format(logEvent, writer);
+            }
             return sb.ToString();
         }
 
