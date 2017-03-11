@@ -6,7 +6,7 @@
 
 param (
     $Configuration = "DEBUG",
-    $IncrementVersion = $false
+    $IncrementVersion = $true
 )
 
 function Go ($Path) {
