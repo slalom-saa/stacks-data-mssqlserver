@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Validation;
 using System.Linq;
 using Newtonsoft.Json;
-using Slalom.Stacks.Messaging;
+using Slalom.Stacks.Services.Logging;
+using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
@@ -162,7 +162,10 @@ namespace Slalom.Stacks.Logging.SqlServer
 
         public Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
         {
-            throw new NotImplementedException();
+            using (var command = new SqlCommand("SELECT * FROM Requests", _connection.Connection))
+            {
+
+            }
         }
     }
 }

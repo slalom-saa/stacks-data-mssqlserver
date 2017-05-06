@@ -4,7 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Slalom.Stacks.Messaging.Logging;
+using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -86,7 +86,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("MessageId")
+            table.Columns.Add(new DataColumn("RequestId")
             {
                 DataType = typeof(string)
             });
@@ -119,7 +119,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    item.Exception,
                    item.IsSuccessful,
                    item.MachineName,
-                   item.MessageId,
+                   item.RequestId,
                    item.Started,
                    item.ThreadId,
                    item.ValidationErrors.Any() ? String.Join("  ", item.ValidationErrors.Select(e => e.Type + ": " + e.Message)) : null);

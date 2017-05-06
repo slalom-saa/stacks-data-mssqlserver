@@ -1,9 +1,15 @@
-﻿using System;
+﻿/*
+ * Copyright 2017 Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ */
+
+using System;
 using System.Collections.Generic;
 using Autofac;
 using Serilog.Core;
 using Slalom.Stacks.Configuration;
-using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
 

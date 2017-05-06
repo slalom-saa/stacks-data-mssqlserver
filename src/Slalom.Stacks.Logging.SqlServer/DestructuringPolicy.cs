@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Security.Claims;
 using Serilog.Core;
 using Serilog.Events;
-using Slalom.Stacks.Messaging;
 using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Serialization;
+using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.Logging.SqlServer
 {
@@ -85,7 +85,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             var target = new List<LogEventProperty>();
             foreach (var item in properties)
             {
-                if ((item.Name == "Value" && value is Command) || item.GetCustomAttributes<IgnoreAttribute>().Any())
+                if (item.GetCustomAttributes<IgnoreAttribute>().Any())
                 {
                     continue;
                 }
