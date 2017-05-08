@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Validation;
 
@@ -18,6 +20,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         private readonly SqlServerLoggingOptions _options;
         private readonly SqlConnectionManager _connection;
         private readonly LocationStore _locations;
+        private readonly IEnvironmentContext _environment;
         private readonly DataTable _eventsTable;
 
         /// <summary>
@@ -26,15 +29,18 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public ResponseLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations) : base(options.BatchSize, options.Period)
+        /// <param name="environment">The environment context.</param>
+        public ResponseLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(connection, nameof(connection));
             Argument.NotNull(locations, nameof(locations));
+            Argument.NotNull(environment, nameof(environment));
 
             _options = options;
             _connection = connection;
             _locations = locations;
+            _environment = environment;
 
             _eventsTable = this.CreateTable();
         }
@@ -50,7 +56,15 @@ namespace Slalom.Stacks.Logging.SqlServer
                 AllowDBNull = false
             });
             table.PrimaryKey = new[] { table.Columns[0] };
-            table.Columns.Add(new DataColumn("Service")
+            table.Columns.Add(new DataColumn("EntryId")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("TimeStamp")
+            {
+                DataType = typeof(DateTimeOffset)
+            });
+            table.Columns.Add(new DataColumn("Endpoint")
             {
                 DataType = typeof(string)
             });
@@ -90,6 +104,10 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("Path")
+            {
+                DataType = typeof(string)
+            });
             table.Columns.Add(new DataColumn("Started")
             {
                 DataType = typeof(DateTimeOffset)
@@ -110,7 +128,9 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
-                   item.Service,
+                    item.Id,
+                    item.TimeStamp,
+                   item.EndPoint,
                    item.ApplicationName,
                    item.Completed,
                    item.CorrelationId,
@@ -120,9 +140,10 @@ namespace Slalom.Stacks.Logging.SqlServer
                    item.IsSuccessful,
                    item.MachineName,
                    item.RequestId,
+                   item.Path,
                    item.Started,
                    item.ThreadId,
-                   item.ValidationErrors.Any() ? String.Join("  ", item.ValidationErrors.Select(e => e.Type + ": " + e.Message)) : null);
+                   item.ValidationErrors.Any() ? String.Join(";#;", item.ValidationErrors.Select(e => e.Type + ": " + e.Message)) : null);
             }
             _eventsTable.AcceptChanges();
         }
@@ -171,9 +192,82 @@ namespace Slalom.Stacks.Logging.SqlServer
             }
         }
 
-        public Task<IEnumerable<ResponseEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
+        public IEnumerable<ValidationError> GetValidationErrors(string value)
         {
-            throw new NotImplementedException();
+            if (String.IsNullOrWhiteSpace(value))
+            {
+                yield break;
+            }
+            var items = value.Split(new[] { "#;#" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in items)
+            {
+                var type = (ValidationType)Enum.Parse(typeof(ValidationType), item.Substring(0, item.IndexOf(": ")));
+                var message = item.Substring(item.IndexOf(": ") + 3);
+
+                yield return new ValidationError(message, type);
+            }
+        }
+
+        public async Task<IEnumerable<ResponseEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
+        {
+            var builder = new StringBuilder("SELECT * FROM Responses WHERE Not Id IS NULL");
+            if (start.HasValue)
+            {
+                builder.Append(" AND TimeStamp >= \'" + start + "\'");
+            }
+            if (end.HasValue)
+            {
+                builder.Append(" AND TimeStamp <= \'" + end + "\'");
+            }
+            var environment = _environment.Resolve();
+            if (String.IsNullOrWhiteSpace(environment.ApplicationName))
+            {
+                builder.Append(" AND ApplicationName is NULL");
+            }
+            else
+            {
+                builder.Append(" AND ApplicationName = \'" + environment.ApplicationName + "\'");
+            }
+            if (String.IsNullOrWhiteSpace(environment.EnvironmentName))
+            {
+                builder.Append(" AND Environment is NULL");
+            }
+            else
+            {
+                builder.Append(" AND Environment = \'" + environment.EnvironmentName + "\'");
+            }
+
+            using (var command = new SqlCommand(builder.ToString(), _connection.Connection))
+            {
+                command.Parameters.AddWithValue("@a", DBNull.Value);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    using (var table = CreateTable())
+                    {
+                        table.Load(reader);
+                        return table.Rows.OfType<DataRow>()
+                            .Select(e => new ResponseEntry
+                            {
+                                Id = e["EntryId"].GetValue<string>(),
+                                CorrelationId = e["CorrelationId"].GetValue<string>(),
+                                ApplicationName = e["ApplicationName"].GetValue<string>(),
+                                Completed = e["Completed"].GetValue<DateTimeOffset?>(),
+                                Elapsed = e["Elapsed"].GetValue<TimeSpan>(),
+                                EnvironmentName = e["Environment"].GetValue<string>(),
+                                Exception = e["Exception"].GetValue<string>(),
+                                IsSuccessful = e["IsSuccessful"].GetValue<bool>(),
+                                MachineName = e["MachineName"].GetValue<string>(),
+                                Path = e["Path"].GetValue<string>(),
+                                RequestId = e["RequestId"].GetValue<string>(),
+                                EndPoint = e["Endpoint"].GetValue<string>(),
+                                Started = e["Started"].GetValue<DateTimeOffset>(),
+                                ThreadId = e["ThreadId"].GetValue<int>(),
+                                TimeStamp = e["TimeStamp"].GetValue<DateTimeOffset>(),
+                                ValidationErrors = this.GetValidationErrors(e["ValidationErrors"].GetValue<string>()),
+                            });
+                    }
+                }
+            }
         }
     }
 }

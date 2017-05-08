@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Packages the SQL Server Logging packages.
+    Packages the SQL Server Logging Nuget packages.
 #>
 
 

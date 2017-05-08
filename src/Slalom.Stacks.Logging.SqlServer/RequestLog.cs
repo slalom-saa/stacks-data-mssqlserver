@@ -5,7 +5,9 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Slalom.Stacks.Validation;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
+using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Services.Messaging;
 
@@ -19,6 +21,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     {
         private readonly SqlConnectionManager _connection;
         private readonly LocationStore _locations;
+        private readonly IEnvironmentContext _environment;
         private readonly DataTable _eventsTable;
         private readonly SqlServerLoggingOptions _options;
 
@@ -28,15 +31,19 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <param name="options">The configured options.</param>
         /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public RequestLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations)
+        /// <param name="environment">The environment context.</param>
+        public RequestLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations, IEnvironmentContext environment)
             : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(connection, nameof(connection));
+            Argument.NotNull(locations, nameof(locations));
+            Argument.NotNull(environment, nameof(environment));
 
             _options = options;
             _connection = connection;
             _locations = locations;
+            _environment = environment;
 
             _eventsTable = this.CreateTable();
         }
@@ -50,7 +57,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         {
             Argument.NotNull(request, nameof(request));
 
-            this.Emit(new RequestEntry(request));
+            this.Emit(new RequestEntry(request, _environment.Resolve()));
 
             return Task.FromResult(0);
         }
@@ -63,23 +70,27 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(int),
                 ColumnName = "Id",
-                AutoIncrement = true,
                 AllowDBNull = false,
+                AutoIncrement = true
             });
             table.PrimaryKey = new[] { table.Columns[0] };
+            table.Columns.Add(new DataColumn("EntryId")
+            {
+                DataType = typeof(string)
+            });
             table.Columns.Add(new DataColumn("CorrelationId")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("MessageBody")
+            table.Columns.Add(new DataColumn("Body")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("MessageId")
+            table.Columns.Add(new DataColumn("RequestId")
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("MessageType")
+            table.Columns.Add(new DataColumn("RequestType")
             {
                 DataType = typeof(string)
             });
@@ -107,6 +118,22 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("ApplicationName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Environment")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("MachineName")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("ThreadId")
+            {
+                DataType = typeof(int)
+            });
             return table;
         }
 
@@ -115,16 +142,21 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (var item in entries)
             {
                 _eventsTable.Rows.Add(null,
+                    item.Id,
                     item.CorrelationId,
-                    item.MessageBody,
-                    item.MessageId,
-                    item.MessageType,
+                    item.Body,
+                    item.RequestId,
+                    item.RequestType,
                     item.Parent,
                     item.Path,
                     item.SessionId,
                     item.SourceAddress,
                     item.TimeStamp,
-                    item.UserName);
+                    item.UserName,
+                    item.ApplicationName,
+                    item.EnvironmentName,
+                    item.MachineName,
+                    item.ThreadId);
             }
             _eventsTable.AcceptChanges();
         }
@@ -160,12 +192,75 @@ namespace Slalom.Stacks.Logging.SqlServer
             await _locations.UpdateAsync(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
         }
 
-        public Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
+        public async Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
         {
-            using (var command = new SqlCommand("SELECT * FROM Requests", _connection.Connection))
+            var builder = new StringBuilder("SELECT * FROM Requests WHERE Not Id IS NULL");
+            if (start.HasValue)
             {
-
+                builder.Append(" AND TimeStamp >= \'" + start + "\'");
             }
+            if (end.HasValue)
+            {
+                builder.Append(" AND TimeStamp <= \'" + end + "\'");
+            }
+            var environment = _environment.Resolve();
+            if (String.IsNullOrWhiteSpace(environment.ApplicationName))
+            {
+                builder.Append(" AND ApplicationName is NULL");
+            }
+            else
+            {
+                builder.Append(" AND ApplicationName = \'" + environment.ApplicationName + "\'");
+            }
+            if (String.IsNullOrWhiteSpace(environment.EnvironmentName))
+            {
+                builder.Append(" AND Environment is NULL");
+            }
+            else
+            {
+                builder.Append(" AND Environment = \'" + environment.EnvironmentName + "\'");
+            }
+            using (var command = new SqlCommand(builder.ToString(), _connection.Connection))
+            {
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    using (var table = CreateTable())
+                    {
+                        table.Load(reader);
+                        return table.Rows.OfType<DataRow>()
+                            .Select(e => new RequestEntry
+                            {
+                                CorrelationId = e["CorrelationId"].GetValue<string>(),
+                                Id = e["EntryId"].GetValue<string>(),
+                                Body = e["Body"].GetValue<string>(),
+                                RequestType = e["RequestType"].GetValue<string>(),
+                                Parent = e["Parent"].GetValue<string>(),
+                                Path = e["Path"].GetValue<string>(),
+                                SessionId = e["SessionId"].GetValue<string>(),
+                                SourceAddress = e["SourceAddress"].GetValue<string>(),
+                                TimeStamp = e["TimeStamp"].GetValue<DateTimeOffset?>(),
+                                UserName = e["UserName"].GetValue<string>(),
+                                RequestId = e["RequestId"].GetValue<string>(),
+                                ApplicationName = e["ApplicationName"].GetValue<string>(),
+                                EnvironmentName = e["Environment"].GetValue<string>(),
+                                MachineName = e["MachineName"].GetValue<string>(),
+                                ThreadId = e["ThreadId"].GetValue<int>(),
+                            });
+                    }
+                }
+            }
+        }
+    }
+
+    internal static class Ext
+    {
+        public static T GetValue<T>(this object instance)
+        {
+            if (instance == null || instance == DBNull.Value)
+            {
+                return default(T);
+            }
+            return (T) instance;
         }
     }
 }

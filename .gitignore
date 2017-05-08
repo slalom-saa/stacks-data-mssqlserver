@@ -252,3 +252,4 @@ paket-files/
 *.sln.iml
 Slalom.SpeedStack/src/Slalom.SpeedStack.WebApi/Properties/launchSettings.json
 Examples/Authentication/Security Rules/Authentication.SecurityRules/src/Authentication.SecurityRules/Properties/launchSettings.json
+Slalom.Stacks.Logging.SqlServer.sln.CodeItRight.xml

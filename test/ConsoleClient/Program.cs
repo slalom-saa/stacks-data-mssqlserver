@@ -9,6 +9,7 @@ using Slalom.Stacks.Logging;
 using Slalom.Stacks.Logging.SqlServer;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Text;
 
 namespace Slalom.Stacks.ConsoleClient
 {
@@ -28,19 +29,23 @@ namespace Slalom.Stacks.ConsoleClient
                 {
                     stack.UseSqlServerLogging();
 
-                    var logger = stack.Container.Resolve<ILogger>();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        stack.Send("go").Wait();
+                    }
 
-                    stack.Send("go").Wait();
-                    
 
-                    logger.Debug("adf");
-                    //stack.Send("", new AddCommand()).Wait();
+                    var requests = stack.GetRequests(start: DateTimeOffset.Now.AddDays(-1));
+
+
+                    requests.OutputToJson();
+
 
                     Console.WriteLine("...");
                     Console.ReadKey();
                 }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Console.WriteLine(exception);
             }

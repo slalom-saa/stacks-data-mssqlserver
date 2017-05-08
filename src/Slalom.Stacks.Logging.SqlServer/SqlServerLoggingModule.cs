@@ -55,7 +55,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .SingleInstance()
                    .PreserveExistingDefaults();
 
-            builder.Register(c => new ResponseLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
+            builder.RegisterType<ResponseLog>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
@@ -66,8 +66,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                        table.CreateTable(c.Instance.CreateTable());
                    });
 
-            builder.Register(c => new RequestLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
-                   .AsImplementedInterfaces()
+            builder.RegisterType<RequestLog>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
+                  .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
                    .PropertiesAutowired(AllProperties.Instance)
