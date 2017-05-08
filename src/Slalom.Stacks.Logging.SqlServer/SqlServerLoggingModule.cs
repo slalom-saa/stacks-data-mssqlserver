@@ -1,9 +1,15 @@
-﻿using System;
+﻿/*
+ * Copyright 2017 Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ */
+
+using System;
 using System.Collections.Generic;
 using Autofac;
 using Serilog.Core;
 using Slalom.Stacks.Configuration;
-using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
 
@@ -49,7 +55,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .SingleInstance()
                    .PreserveExistingDefaults();
 
-            builder.Register(c => new ResponseLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
+            builder.RegisterType<ResponseLog>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
                    .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
@@ -60,8 +66,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                        table.CreateTable(c.Instance.CreateTable());
                    });
 
-            builder.Register(c => new RequestLog(_options, c.Resolve<SqlConnectionManager>(), c.Resolve<LocationStore>()))
-                   .AsImplementedInterfaces()
+            builder.RegisterType<RequestLog>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
+                  .AsImplementedInterfaces()
                    .AsSelf()
                    .SingleInstance()
                    .PropertiesAutowired(AllProperties.Instance)

@@ -3,28 +3,20 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Newtonsoft.Json;
 using Slalom.Stacks.Logging;
 using Slalom.Stacks.Logging.SqlServer;
-using Slalom.Stacks.Messaging;
-using Slalom.Stacks.Messaging.Logging;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Text;
 
 namespace Slalom.Stacks.ConsoleClient
 {
 
-    public class AddCommand : Command
+    [EndPoint("go")]
+    public class End : EndPoint
     {
-    }
-
-    public class Add : UseCase<AddCommand>
-    {
-        public override void Execute(AddCommand command)
-        {
-            throw new Exception("Af");
-            Console.WriteLine("...");
-        }
     }
 
     public class Program
@@ -37,13 +29,23 @@ namespace Slalom.Stacks.ConsoleClient
                 {
                     stack.UseSqlServerLogging();
 
-                    stack.Send("", new AddCommand()).Wait();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        stack.Send("go").Wait();
+                    }
+
+
+                    var requests = stack.GetRequests(start: DateTimeOffset.Now.AddDays(-1));
+
+
+                    requests.OutputToJson();
+
 
                     Console.WriteLine("...");
                     Console.ReadKey();
                 }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Console.WriteLine(exception);
             }

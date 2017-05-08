@@ -12,8 +12,7 @@
     "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
     "Slalom.Stacks.Logging.SqlServer": {
       "target": "project"
-    },
-    "Slalom.Stacks.TestKit": "1.4.92"
+    }
   },
   "frameworks": {
     "net461": {

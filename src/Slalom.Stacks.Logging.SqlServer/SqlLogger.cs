@@ -8,7 +8,7 @@ using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
 using Serilog.Context;
 using Serilog.Events;
-using Slalom.Stacks.Messaging;
+using Slalom.Stacks.Services.Messaging;
 using Environment = Slalom.Stacks.Runtime.Environment;
 
 namespace Slalom.Stacks.Logging.SqlServer
