@@ -29,19 +29,8 @@ namespace Slalom.Stacks.ConsoleClient
                 {
                     stack.UseSqlServerLogging();
 
-                    for (int i = 0; i < 3; i++)
-                    {
-                        stack.Send("go").Wait();
-                    }
+                    stack.Logger.Debug("out");
 
-
-                    var requests = stack.GetRequests(start: DateTimeOffset.Now.AddDays(-1));
-
-
-                    requests.OutputToJson();
-
-
-                    Console.WriteLine("...");
                     Console.ReadKey();
                 }
             }

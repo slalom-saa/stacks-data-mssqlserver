@@ -1,17 +1,25 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
-using Slalom.Stacks.Validation;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
+using Slalom.Stacks.Logging.SqlServer.Batching;
+using Slalom.Stacks.Logging.SqlServer.Locations;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Services.Messaging;
+using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     /// <summary>
     /// A SQL Server <see cref="IRequestStore"/> implementation.
@@ -224,7 +232,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 using (var reader = await command.ExecuteReaderAsync())
                 {
-                    using (var table = CreateTable())
+                    using (var table = this.CreateTable())
                     {
                         table.Load(reader);
                         return table.Rows.OfType<DataRow>()

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Modifications copyright(C) 2017 Slalom Architect Academy
+// Modifications copyright(C) 2017 Stacks Contributors
 
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Batching
 {
     class BoundedConcurrentQueue<T> 
     {

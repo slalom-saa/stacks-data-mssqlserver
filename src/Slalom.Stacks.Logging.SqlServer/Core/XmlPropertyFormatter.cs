@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Modifications copyright(C) 2017 Slalom Architect Academy
+// Modifications copyright(C) 2017 Stacks Contributors
 
 using System.Globalization;
 using System.Linq;
@@ -22,7 +22,7 @@ using System.Xml.Linq;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     /// <summary>
     ///     Converts <see cref="LogEventProperty" /> values into simple scalars,

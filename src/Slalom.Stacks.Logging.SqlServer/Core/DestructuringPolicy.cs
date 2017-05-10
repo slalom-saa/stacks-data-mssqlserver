@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +17,7 @@ using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Serialization;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     internal class DestructuringPolicy : IDestructuringPolicy
     {
@@ -110,8 +117,6 @@ namespace Slalom.Stacks.Logging.SqlServer
                     target.Add(new LogEventProperty(item.Name, new ScalarValue(null)));
                     continue;
                 }
-
-
 
                 if (piValue is Exception)
                 {

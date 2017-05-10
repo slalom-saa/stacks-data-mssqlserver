@@ -1,0 +1,76 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "id": "http://example.com/example.json",
+  "properties": {
+    "Stacks": {
+      "id": "/properties/Stacks",
+      "properties": {
+        "Logging": {
+          "id": "/properties/Stacks/properties/Logging",
+          "properties": {
+            "SqlServer": {
+              "id": "/properties/Stacks/properties/Logging/properties/SqlServer",
+              "properties": {
+                "BatchSize": {
+                  "default": 1000,
+                  "description": "The upper size of the batch to write.  When this number is reached, all items will be written for the given type.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/BatchSize",
+                  "title": "Batch Size",
+                  "type": "integer"
+                },
+                "ConnectionString": {
+                  "default": "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True",
+                  "description": "The SQL connection string.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/ConnectionString",
+                  "title": "Connection String",
+                  "type": "string"
+                },
+                "Period": {
+                  "default": "00:00:05",
+                  "description": "The time in between batches.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Period",
+                  "title": "Batch Time",
+                  "type": "string"
+                },
+                "RequestsTableName": {
+                  "default": "Requests",
+                  "description": "The name of the table that is used for requests.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/RequestsTableName",
+                  "title": "Requests Table Name",
+                  "type": "string"
+                },
+                "ResponsesTableName": {
+                  "default": "Responses",
+                  "description": "The name of the table that is used for responses.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/ResponsesTableName",
+                  "title": "Response Table Name",
+                  "type": "string"
+                },
+                "TraceLogLevel": {
+                  "default": "Warning",
+                  "description": "The trace log level: Verbose, Debug, Information, Warning, Error, Fatal.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/TraceLogLevel",
+                  "title": "Trace Log Level",
+                  "type": "string",
+                  "enum": [ "Verbose", "Debug", "Information", "Warning", "Error", "Fatal" ]
+                },
+                "TraceTableName": {
+                  "default": "Traces",
+                  "description": "The name of the table that is used for traces.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/TraceTableName",
+                  "title": "Trace Table Name",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

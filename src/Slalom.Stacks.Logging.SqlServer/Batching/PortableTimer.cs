@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Modifications copyright(C) 2017 Stacks Contributors
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Batching
 {
     class PortableTimer : IDisposable
     {
@@ -57,7 +59,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 #else
                 Task.Delay(interval, _cancel.Token)
                     .ContinueWith(
-                        _ => OnTick(),
+                        _ => this.OnTick(),
                         CancellationToken.None,
                         TaskContinuationOptions.DenyChildAttach,
                         TaskScheduler.Default);

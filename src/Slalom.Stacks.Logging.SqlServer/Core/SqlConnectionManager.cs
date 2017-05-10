@@ -1,8 +1,14 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Linq;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
 
-namespace Slalom.Stacks.Logging.SqlServer
+using System;
+using System.Data.SqlClient;
+
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     public class SqlConnectionManager : IDisposable
     {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Modifications copyright(C) 2017 Slalom Architect Academy
+// Modifications copyright(C) 2017 Stacks Contributors
 
 using System;
 using System.Collections.Generic;
@@ -27,9 +27,9 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.MSSqlServer;
 using Serilog.Sinks.PeriodicBatching;
-using Slalom.Stacks.Runtime;
+using Slalom.Stacks.Logging.SqlServer.Locations;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     /// <summary>
     ///     Writes log events as rows in a table of MSSqlServer database.

@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
 using MaxMind.GeoIP2;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
-    public class IPInformation
-    {
-        public double? Latitude { get; set; }
-
-        public double? Longitude { get; set; }
-
-        public string Isp { get; set; }
-
-        public string IPAddress { get; set; }
-    }
-
     public class IPInformationProvider
     {
         public IPInformation Get(string address)

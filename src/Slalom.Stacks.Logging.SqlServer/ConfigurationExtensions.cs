@@ -1,5 +1,14 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
+using System.Collections;
 using Autofac;
+using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -20,8 +29,8 @@ namespace Slalom.Stacks.Logging.SqlServer
             Argument.NotNull(instance, nameof(instance));
 
             var options = new SqlServerLoggingOptions();
-
             configuration?.Invoke(options);
+            instance.Configuration.GetSection("Stacks:Logging:SqlServer").Bind(options);
 
             instance.Use(builder =>
             {
