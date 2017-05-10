@@ -4,59 +4,67 @@
   "definitions": {},
   "id": "http://example.com/example.json",
   "properties": {
-    "BatchSize": {
-      "default": 1000,
-      "description": "The upper size of the batch to write.  When this number is reached, all items will be written for the given type.",
-      "id": "/properties/BatchSize",
-      "title": "Batch Size",
-      "type": "integer"
-    },
-    "ConnectionString": {
-      "default": "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True",
-      "description": "The SQL connection string.",
-      "id": "/properties/ConnectionString",
-      "title": "Connection String",
-      "type": "string"
-    },
-    "Period": {
-      "default": "00:00:05",
-      "description": "The time in between batches.",
-      "id": "/properties/Period",
-      "title": "The Period Schema",
-      "type": "string"
-    },
-    "RequestsTableName": {
-      "default": "Requests",
-      "description": "The name of the table that is used for requests.",
-      "id": "/properties/RequestsTableName",
-      "title": "Requests Table Name",
-      "type": "string"
-    },
-    "ResponsesTableName": {
-      "default": "Responses",
-      "description": "The name of the table that is used for responses.",
-      "id": "/properties/ResponsesTableName",
-      "title": "Response Table Name",
-      "type": "string"
-    },
-    "TraceLogLevel": {
-      "default": 3,
-      "description": "The trace log level.  Verbose = 0, Debug = 1, Information = 2, Warning = 3, Error = 4, Fatal = 5",
-      "exclusiveMaximum": false,
-      "exclusiveMinimum": false,
-      "minimum": 0,
-      "maximum": 5,
-      "id": "/properties/TraceLogLevel",
-      "title": "Trace Log Level",
-      "type": "integer"
-    },
-    "TraceTableName": {
-      "default": "Traces",
-      "description": "The name of the table that is used for traces.",
-      "id": "/properties/TraceTableName",
-      "title": "The Tracetablename Schema",
-      "type": "string"
+    "Stacks": {
+      "additionalProperties": true,
+      "id": "/properties/Stacks",
+      "properties": {
+        "BatchSize": {
+          "default": 1000,
+          "description":
+            "The upper size of the batch to write.  When this number is reached, all items will be written for the given type.",
+          "id": "/properties/BatchSize",
+          "title": "Batch Size",
+          "type": "integer"
+        },
+        "ConnectionString": {
+          "default": "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True",
+          "description": "The SQL connection string.",
+          "id": "/properties/ConnectionString",
+          "title": "Connection String",
+          "type": "string"
+        },
+        "Period": {
+          "default": "00:00:05",
+          "description": "The time in between batches.",
+          "id": "/properties/Period",
+          "title": "The Period Schema",
+          "type": "string"
+        },
+        "RequestsTableName": {
+          "default": "Requests",
+          "description": "The name of the table that is used for requests.",
+          "id": "/properties/RequestsTableName",
+          "title": "Requests Table Name",
+          "type": "string"
+        },
+        "ResponsesTableName": {
+          "default": "Responses",
+          "description": "The name of the table that is used for responses.",
+          "id": "/properties/ResponsesTableName",
+          "title": "Response Table Name",
+          "type": "string"
+        },
+        "TraceLogLevel": {
+          "default": 3,
+          "description":
+            "The trace log level.  Verbose = 0, Debug = 1, Information = 2, Warning = 3, Error = 4, Fatal = 5",
+          "exclusiveMaximum": false,
+          "exclusiveMinimum": false,
+          "minimum": 0,
+          "maximum": 5,
+          "id": "/properties/TraceLogLevel",
+          "title": "Trace Log Level",
+          "type": "integer"
+        },
+        "TraceTableName": {
+          "default": "Traces",
+          "description": "The name of the table that is used for traces.",
+          "id": "/properties/TraceTableName",
+          "title": "The Tracetablename Schema",
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
-  },
-  "type": "object"
+  }
 }
