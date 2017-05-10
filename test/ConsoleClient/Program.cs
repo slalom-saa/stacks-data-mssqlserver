@@ -25,6 +25,15 @@ namespace Slalom.Stacks.ConsoleClient
         {
             try
             {
+                var options = new SqlServerLoggingOptions();
+
+                var content = options.ToJson();
+
+                Console.WriteLine(content);
+
+                return;
+
+
                 using (var stack = new Stack(typeof(Program)))
                 {
                     stack.UseSqlServerLogging();

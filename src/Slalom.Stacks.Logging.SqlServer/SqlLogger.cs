@@ -72,7 +72,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 .Destructure.With(policies.ToArray())
                 .Enrich.FromLogContext()
                 .WriteTo.StacksSqlServer(options.ConnectionString, options.TraceTableName, autoCreateSqlTable: true, columnOptions: columnOptions, locations: locations)
-                .MinimumLevel.Is(options.LogLevel);
+                .MinimumLevel.Is(options.TraceLogLevel);
 
             _logger = builder.CreateLogger();
         }
