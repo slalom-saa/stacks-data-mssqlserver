@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using Autofac;
+using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -20,8 +22,8 @@ namespace Slalom.Stacks.Logging.SqlServer
             Argument.NotNull(instance, nameof(instance));
 
             var options = new SqlServerLoggingOptions();
-
             configuration?.Invoke(options);
+            instance.Configuration.GetSection("Stacks:SqlLogging").Bind(options);
 
             instance.Use(builder =>
             {

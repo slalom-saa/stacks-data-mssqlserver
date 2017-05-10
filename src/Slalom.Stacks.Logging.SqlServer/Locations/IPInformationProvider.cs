@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MaxMind.GeoIP2;
+﻿using MaxMind.GeoIP2;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
     public class IPInformation
     {

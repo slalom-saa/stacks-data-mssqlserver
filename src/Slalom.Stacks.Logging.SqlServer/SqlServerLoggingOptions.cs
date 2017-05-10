@@ -43,7 +43,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// Gets the trace log level.
         /// </summary>
         /// <value>The trace log level.</value>
-        public LogEventLevel TraceLogLevel { get; private set; } = LogEventLevel.Warning;
+        public string TraceLogLevel { get; set; } = "Warning";
 
         /// <summary>
         /// Gets or sets the name of the table that is used for traces.
@@ -72,9 +72,19 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// <returns>The instance for chaining.</returns>
         public SqlServerLoggingOptions WithTracing(LogEventLevel level)
         {
-            this.TraceLogLevel = level;
+            this.TraceLogLevel = level.ToString();
 
             return this;
+        }
+
+        internal LogEventLevel GetLogLevel()
+        {
+            LogEventLevel level;
+            if (Enum.TryParse(this.TraceLogLevel, out level))
+            {
+                return level;
+            }
+            return LogEventLevel.Warning;
         }
     }
 }

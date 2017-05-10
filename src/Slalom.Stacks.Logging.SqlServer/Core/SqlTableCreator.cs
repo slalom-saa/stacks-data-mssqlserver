@@ -19,7 +19,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     internal class SqlTableCreator
     {

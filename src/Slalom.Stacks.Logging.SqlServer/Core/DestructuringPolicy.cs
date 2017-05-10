@@ -10,7 +10,7 @@ using Slalom.Stacks.Reflection;
 using Slalom.Stacks.Serialization;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     internal class DestructuringPolicy : IDestructuringPolicy
     {

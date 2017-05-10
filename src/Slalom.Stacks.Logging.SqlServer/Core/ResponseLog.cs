@@ -5,11 +5,13 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Slalom.Stacks.Logging.SqlServer.Batching;
+using Slalom.Stacks.Logging.SqlServer.Locations;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     /// <summary>
     /// A SQL Server <see cref="IResponseLog"/> implementation.
@@ -242,7 +244,7 @@ namespace Slalom.Stacks.Logging.SqlServer
                 command.Parameters.AddWithValue("@a", DBNull.Value);
                 using (var reader = await command.ExecuteReaderAsync())
                 {
-                    using (var table = CreateTable())
+                    using (var table = this.CreateTable())
                     {
                         table.Load(reader);
                         return table.Rows.OfType<DataRow>()

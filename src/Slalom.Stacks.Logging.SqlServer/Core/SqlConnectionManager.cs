@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.Linq;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     public class SqlConnectionManager : IDisposable
     {

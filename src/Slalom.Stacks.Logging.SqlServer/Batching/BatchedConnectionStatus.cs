@@ -16,7 +16,7 @@
 
 using System;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Batching
 {
     /// <summary>
     /// Manages reconnection period and transient fault response for Periodic Batching.

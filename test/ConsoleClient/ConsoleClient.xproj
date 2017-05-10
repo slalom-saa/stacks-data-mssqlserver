@@ -18,7 +18,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.targets" Condition="'$(VSToolsPath)' != ''" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties appsettings_1json__JSONSchema="https://github.com/slalom-saa/stacks-logging-sqlserver/raw/develop/src/Slalom.Stacks.Logging.SqlServer/schema.json" />
+      <UserProperties appsettings_1json__JSONSchema="..\..\src\Slalom.Stacks.Logging.SqlServer\schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

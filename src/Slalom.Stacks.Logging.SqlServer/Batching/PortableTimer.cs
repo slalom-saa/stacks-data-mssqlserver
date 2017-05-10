@@ -16,7 +16,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Batching
 {
     class PortableTimer : IDisposable
     {
@@ -57,7 +57,7 @@ namespace Slalom.Stacks.Logging.SqlServer
 #else
                 Task.Delay(interval, _cancel.Token)
                     .ContinueWith(
-                        _ => OnTick(),
+                        _ => this.OnTick(),
                         CancellationToken.None,
                         TaskContinuationOptions.DenyChildAttach,
                         TaskScheduler.Default);

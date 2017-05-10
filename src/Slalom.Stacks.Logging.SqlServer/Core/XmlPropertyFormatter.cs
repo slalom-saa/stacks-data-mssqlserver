@@ -22,7 +22,7 @@ using System.Xml.Linq;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     /// <summary>
     ///     Converts <see cref="LogEventProperty" /> values into simple scalars,

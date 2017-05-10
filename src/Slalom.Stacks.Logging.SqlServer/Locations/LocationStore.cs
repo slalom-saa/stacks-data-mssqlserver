@@ -3,8 +3,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Slalom.Stacks.Logging.SqlServer.Core;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
     public class LocationStore : IDisposable
     {

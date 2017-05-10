@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Data;
-using Serilog;
-using Serilog.Configuration;
-using Serilog.Debugging;
-using Serilog.Events;
-using Serilog.Sinks.MSSqlServer;
-using Slalom.Stacks.Runtime;
-
-// Copyright 2014 Serilog Contributors
+﻿// Copyright 2014 Serilog Contributors
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,10 +14,21 @@ using Slalom.Stacks.Runtime;
 //
 // Modifications copyright(C) 2017 Slalom Architect Academy
 
-namespace Slalom.Stacks.Logging.SqlServer
+using System;
+using System.Collections.ObjectModel;
+using System.Configuration;
+using System.Data;
+using Serilog;
+using Serilog.Configuration;
+using Serilog.Debugging;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
+using Slalom.Stacks.Logging.SqlServer.Locations;
+
+namespace Slalom.Stacks.Logging.SqlServer.Core
 {
     /// <summary>
-    /// Adds the WriteTo.MSSqlServer() extension method to <see cref="LoggerConfiguration"/>.
+    /// Adds the WriteTo.MSSqlServer() extension method to <see cref="LoggerConfiguration" />.
     /// </summary>
     public static class LoggerConfigurationMSSqlServerExtensions
     {
@@ -60,14 +60,17 @@ namespace Slalom.Stacks.Logging.SqlServer
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
             LocationStore locations = null
-            )
+        )
         {
-            if (loggerConfiguration == null) throw new ArgumentNullException("loggerConfiguration");
+            if (loggerConfiguration == null)
+            {
+                throw new ArgumentNullException("loggerConfiguration");
+            }
 
             var defaultedPeriod = period ?? Serilog.Sinks.MSSqlServer.MSSqlServerSink.DefaultPeriod;
 
-            MSSqlServerConfigurationSection serviceConfigSection =
-               ConfigurationManager.GetSection("MSSqlServerSettingsSection") as MSSqlServerConfigurationSection;
+            var serviceConfigSection =
+                ConfigurationManager.GetSection("MSSqlServerSettingsSection") as MSSqlServerConfigurationSection;
 
             // If we have additional columns from config, load them as well
             if (serviceConfigSection != null && serviceConfigSection.Columns.Count > 0)
@@ -91,35 +94,8 @@ namespace Slalom.Stacks.Logging.SqlServer
                     autoCreateSqlTable,
                     columnOptions,
                     locations
-                    ),
+                ),
                 restrictedToMinimumLevel);
-        }
-
-        /// <summary>
-        /// Examine if supplied connection string is a reference to an item in the "ConnectionStrings" section of web.config
-        /// If it is, return the ConnectionStrings item, if not, return string as supplied.
-        /// </summary>
-        /// <param name="nameOrConnectionString">The name of the ConnectionStrings key or raw connection string.</param>
-        /// <remarks>Pulled from review of Entity Framework 6 methodology for doing the same</remarks>
-        private static string GetConnectionString(string nameOrConnectionString)
-        {
-
-            // If there is an `=`, we assume this is a raw connection string not a named value
-            // If there are no `=`, attempt to pull the named value from config
-            if (nameOrConnectionString.IndexOf('=') < 0)
-            {
-                var cs = ConfigurationManager.ConnectionStrings[nameOrConnectionString];
-                if (cs != null)
-                {
-                    return cs.ConnectionString;
-                }
-                else
-                {
-                    SelfLog.WriteLine("MSSqlServer sink configured value {0} is not found in ConnectionStrings settings and does not appear to be a raw connection string.", nameOrConnectionString);
-                }
-            }
-
-            return nameOrConnectionString;
         }
 
         /// <summary>
@@ -135,7 +111,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             foreach (ColumnConfig c in serviceConfigSection.Columns)
             {
                 // Set the type based on the defined SQL type from config
-                DataColumn column = new DataColumn(c.ColumnName);
+                var column = new DataColumn(c.ColumnName);
 
                 Type dataType = null;
 
@@ -193,6 +169,29 @@ namespace Slalom.Stacks.Logging.SqlServer
                 }
                 columnOptions.AdditionalDataColumns.Add(column);
             }
+        }
+
+        /// <summary>
+        /// Examine if supplied connection string is a reference to an item in the "ConnectionStrings" section of web.config
+        /// If it is, return the ConnectionStrings item, if not, return string as supplied.
+        /// </summary>
+        /// <param name="nameOrConnectionString">The name of the ConnectionStrings key or raw connection string.</param>
+        /// <remarks>Pulled from review of Entity Framework 6 methodology for doing the same</remarks>
+        private static string GetConnectionString(string nameOrConnectionString)
+        {
+            // If there is an `=`, we assume this is a raw connection string not a named value
+            // If there are no `=`, attempt to pull the named value from config
+            if (nameOrConnectionString.IndexOf('=') < 0)
+            {
+                var cs = ConfigurationManager.ConnectionStrings[nameOrConnectionString];
+                if (cs != null)
+                {
+                    return cs.ConnectionString;
+                }
+                SelfLog.WriteLine("MSSqlServer sink configured value {0} is not found in ConnectionStrings settings and does not appear to be a raw connection string.", nameOrConnectionString);
+            }
+
+            return nameOrConnectionString;
         }
     }
 }
