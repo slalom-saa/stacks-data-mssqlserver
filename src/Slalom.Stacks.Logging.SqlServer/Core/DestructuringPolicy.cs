@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* 
+ * Copyright (c) Stacks Contributors
+ * 
+ * This file is subject to the terms and conditions defined in
+ * the LICENSE file, which is part of this source code package.
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,8 +117,6 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                     target.Add(new LogEventProperty(item.Name, new ScalarValue(null)));
                     continue;
                 }
-
-
 
                 if (piValue is Exception)
                 {
