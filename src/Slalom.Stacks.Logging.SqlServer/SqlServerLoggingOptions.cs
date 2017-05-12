@@ -31,6 +31,12 @@ namespace Slalom.Stacks.Logging.SqlServer
         public string ConnectionString { get; set; } = "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True";
 
         /// <summary>
+        /// Gets or sets the name of the table that is used for events.
+        /// </summary>
+        /// <value>The name of the table that is used for events.</value>
+        public string EventsTableName { get; set; } = "Events";
+
+        /// <summary>
         /// Gets or sets the time between batches.
         /// </summary>
         /// <value>The time between batches.</value>
@@ -47,6 +53,12 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// </summary>
         /// <value>The name of the table that is used for responses.</value>
         public string ResponsesTableName { get; set; } = "Responses";
+
+        /// <summary>
+        /// Gets or sets the query selection limit.
+        /// </summary>
+        /// <value>The query selection limit.</value>
+        public int SelectLimit { get; set; } = 1000;
 
         /// <summary>
         /// Gets the trace log level.

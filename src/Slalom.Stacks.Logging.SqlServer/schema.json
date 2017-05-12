@@ -1,7 +1,6 @@
 ﻿{
   "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {},
-  "id": "http://example.com/example.json",
   "properties": {
     "Stacks": {
       "id": "/properties/Stacks",
@@ -17,6 +16,13 @@
                   "description": "The upper size of the batch to write.  When this number is reached, all items will be written for the given type.",
                   "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/BatchSize",
                   "title": "Batch Size",
+                  "type": "integer"
+                },
+                "SelectLimit": {
+                  "default": 1000,
+                  "description": "The top number of items to select when querying tables.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/SelectLimit",
+                  "title": "Select Limit",
                   "type": "integer"
                 },
                 "ConnectionString": {

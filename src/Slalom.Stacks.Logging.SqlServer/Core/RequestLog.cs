@@ -27,7 +27,6 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     /// <seealso cref="Slalom.Stacks.Messaging.Logging.IRequestStore" />
     public class RequestLog : PeriodicBatcher<RequestEntry>, IRequestLog
     {
-        private readonly SqlConnectionManager _connection;
         private readonly LocationStore _locations;
         private readonly IEnvironmentContext _environment;
         private readonly DataTable _eventsTable;
@@ -37,19 +36,16 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// Initializes a new instance of the <see cref="RequestLog" /> class.
         /// </summary>
         /// <param name="options">The configured options.</param>
-        /// <param name="connection">The configured <see cref="SqlConnectionManager" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public RequestLog(SqlServerLoggingOptions options, SqlConnectionManager connection, LocationStore locations, IEnvironmentContext environment)
+        public RequestLog(SqlServerLoggingOptions options, LocationStore locations, IEnvironmentContext environment)
             : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
-            Argument.NotNull(connection, nameof(connection));
             Argument.NotNull(locations, nameof(locations));
             Argument.NotNull(environment, nameof(environment));
 
             _options = options;
-            _connection = connection;
             _locations = locations;
             _environment = environment;
 
@@ -183,17 +179,21 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             var list = events as IList<RequestEntry> ?? events.ToList();
             this.Fill(list);
 
-            using (var copy = new SqlBulkCopy(_connection.Connection))
+            using (var connection = new SqlConnection(_options.ConnectionString))
             {
-                copy.DestinationTableName = string.Format(_options.RequestsTableName);
-                foreach (var column in _eventsTable.Columns)
+                connection.Open();
+                using (var copy = new SqlBulkCopy(connection))
                 {
-                    var columnName = ((DataColumn)column).ColumnName;
-                    var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
-                    copy.ColumnMappings.Add(mapping);
-                }
+                    copy.DestinationTableName = string.Format(_options.RequestsTableName);
+                    foreach (var column in _eventsTable.Columns)
+                    {
+                        var columnName = ((DataColumn)column).ColumnName;
+                        var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
+                        copy.ColumnMappings.Add(mapping);
+                    }
 
-                await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
+                    await copy.WriteToServerAsync(_eventsTable).ConfigureAwait(false);
+                }
             }
             _eventsTable.Clear();
 
@@ -202,7 +202,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
 
         public async Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)
         {
-            var builder = new StringBuilder("SELECT * FROM Requests WHERE Not Id IS NULL");
+            var builder = new StringBuilder($"SELECT TOP {_options.SelectLimit} * FROM {_options.RequestsTableName} WHERE Not Id IS NULL");
             if (start.HasValue)
             {
                 builder.Append(" AND TimeStamp >= \'" + start + "\'");
@@ -228,32 +228,36 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 builder.Append(" AND Environment = \'" + environment.EnvironmentName + "\'");
             }
-            using (var command = new SqlCommand(builder.ToString(), _connection.Connection))
+            using (var connection = new SqlConnection(_options.ConnectionString))
             {
-                using (var reader = await command.ExecuteReaderAsync())
+                connection.Open();
+                using (var command = new SqlCommand(builder.ToString(), connection))
                 {
-                    using (var table = this.CreateTable())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        table.Load(reader);
-                        return table.Rows.OfType<DataRow>()
-                            .Select(e => new RequestEntry
-                            {
-                                CorrelationId = e["CorrelationId"].GetValue<string>(),
-                                Id = e["EntryId"].GetValue<string>(),
-                                Body = e["Body"].GetValue<string>(),
-                                RequestType = e["RequestType"].GetValue<string>(),
-                                Parent = e["Parent"].GetValue<string>(),
-                                Path = e["Path"].GetValue<string>(),
-                                SessionId = e["SessionId"].GetValue<string>(),
-                                SourceAddress = e["SourceAddress"].GetValue<string>(),
-                                TimeStamp = e["TimeStamp"].GetValue<DateTimeOffset?>(),
-                                UserName = e["UserName"].GetValue<string>(),
-                                RequestId = e["RequestId"].GetValue<string>(),
-                                ApplicationName = e["ApplicationName"].GetValue<string>(),
-                                EnvironmentName = e["Environment"].GetValue<string>(),
-                                MachineName = e["MachineName"].GetValue<string>(),
-                                ThreadId = e["ThreadId"].GetValue<int>(),
-                            });
+                        using (var table = this.CreateTable())
+                        {
+                            table.Load(reader);
+                            return table.Rows.OfType<DataRow>()
+                                .Select(e => new RequestEntry
+                                {
+                                    CorrelationId = e["CorrelationId"].GetValue<string>(),
+                                    Id = e["EntryId"].GetValue<string>(),
+                                    Body = e["Body"].GetValue<string>(),
+                                    RequestType = e["RequestType"].GetValue<string>(),
+                                    Parent = e["Parent"].GetValue<string>(),
+                                    Path = e["Path"].GetValue<string>(),
+                                    SessionId = e["SessionId"].GetValue<string>(),
+                                    SourceAddress = e["SourceAddress"].GetValue<string>(),
+                                    TimeStamp = e["TimeStamp"].GetValue<DateTimeOffset?>(),
+                                    UserName = e["UserName"].GetValue<string>(),
+                                    RequestId = e["RequestId"].GetValue<string>(),
+                                    ApplicationName = e["ApplicationName"].GetValue<string>(),
+                                    EnvironmentName = e["Environment"].GetValue<string>(),
+                                    MachineName = e["MachineName"].GetValue<string>(),
+                                    ThreadId = e["ThreadId"].GetValue<int>(),
+                                });
+                        }
                     }
                 }
             }
@@ -268,7 +272,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 return default(T);
             }
-            return (T) instance;
+            return (T)instance;
         }
     }
 }
