@@ -16,14 +16,14 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
     public class LocationStore : IDisposable
     {
-        private readonly SqlConnectionManager _connection;
+        private readonly SqlServerLoggingOptions _options;
         private readonly IPInformationProvider _provider;
 
         private DataTable _locationsTable;
 
-        public LocationStore(SqlConnectionManager connection, IPInformationProvider provider)
+        public LocationStore(SqlServerLoggingOptions options, IPInformationProvider provider)
         {
-            _connection = connection;
+            _options = options;
             _provider = provider;
         }
 
@@ -74,19 +74,23 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
             var changes = table.GetChanges();
             if (changes != null && changes.Rows.Count != 0)
             {
-                using (var copy = new SqlBulkCopy(_connection.Connection))
+                using (var connection = new SqlConnection(_options.ConnectionString))
                 {
-                    copy.DestinationTableName = string.Format(table.TableName);
-                    foreach (var column in table.Columns)
+                    connection.Open();
+                    using (var copy = new SqlBulkCopy(connection))
                     {
-                        var columnName = ((DataColumn)column).ColumnName;
-                        var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
-                        copy.ColumnMappings.Add(mapping);
+                        copy.DestinationTableName = string.Format(table.TableName);
+                        foreach (var column in table.Columns)
+                        {
+                            var columnName = ((DataColumn) column).ColumnName;
+                            var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
+                            copy.ColumnMappings.Add(mapping);
+                        }
+
+                        await copy.WriteToServerAsync(changes).ConfigureAwait(false);
+
+                        table.AcceptChanges();
                     }
-
-                    await copy.WriteToServerAsync(changes).ConfigureAwait(false);
-
-                    table.AcceptChanges();
                 }
             }
         }
@@ -96,10 +100,14 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
             if (_locationsTable == null)
             {
                 _locationsTable = this.CreateTable();
-                using (var adapter = new SqlDataAdapter("SELECT * FROM " + _locationsTable.TableName, _connection.Connection))
+                using (var connection = new SqlConnection(_options.ConnectionString))
                 {
-                    adapter.Fill(_locationsTable);
-                    _locationsTable.AcceptChanges();
+                    connection.Open();
+                    using (var adapter = new SqlDataAdapter("SELECT * FROM " + _locationsTable.TableName, connection))
+                    {
+                        adapter.Fill(_locationsTable);
+                        _locationsTable.AcceptChanges();
+                    }
                 }
             }
             return _locationsTable;

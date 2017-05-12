@@ -28,6 +28,8 @@ namespace Slalom.Stacks.Logging.SqlServer
         {
             Argument.NotNull(instance, nameof(instance));
 
+            instance.Include(typeof(ConfigurationExtensions).Assembly);
+
             var options = new SqlServerLoggingOptions();
             configuration?.Invoke(options);
             instance.Configuration.GetSection("Stacks:Logging:SqlServer").Bind(options);

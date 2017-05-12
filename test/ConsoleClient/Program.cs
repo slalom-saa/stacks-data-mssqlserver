@@ -9,14 +9,24 @@ using Slalom.Stacks.Logging;
 using Slalom.Stacks.Logging.SqlServer;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services;
+using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Text;
 
 namespace Slalom.Stacks.ConsoleClient
 {
 
+    public class AD : Event
+    {
+        public string Content { get; set; } = "s";
+    }
+
     [EndPoint("go")]
     public class End : EndPoint
     {
+        public override void Receive()
+        {
+            this.AddRaisedEvent(new AD());
+        }
     }
 
     public class Program
@@ -29,9 +39,11 @@ namespace Slalom.Stacks.ConsoleClient
                 {
                     stack.UseSqlServerLogging();
 
-                    stack.Logger.Debug("out");
+                    stack.Send("go").Wait();
 
-                    Console.ReadKey();
+
+                    stack.GetEvents().OutputToJson();
+
                 }
             }
             catch (Exception exception)
