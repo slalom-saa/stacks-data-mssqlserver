@@ -11,7 +11,8 @@
     ],
     "licenseUrl": "https://github.com/slalom-saa/stacks/blob/master/LICENSE",
     "requireLicenseAcceptance": true,
-    "summary": "SQL Server logging for Stacks."
+    "summary": "SQL Server logging for Stacks.",
+    "projectUrl": "https://github.com/slalom-saa/stacks"
   },
   "dependencies": {
     "MaxMind.GeoIP2": "2.7.2",
