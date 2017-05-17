@@ -89,7 +89,7 @@
                       "default": false,
                       "description": "Indicates whether locations should be used in logging.",
                       "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/On",
-                      "title": "The On Schema",
+                      "title": "On",
                       "type": "boolean"
                     },
                     "UserId": {
