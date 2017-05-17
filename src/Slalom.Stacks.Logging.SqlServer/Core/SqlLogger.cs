@@ -25,9 +25,9 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// Initializes a new instance of the <see cref="SqlLogger" /> class.
         /// </summary>
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
-        /// <param name="policies">The configured <see cref="IDestructuringPolicy"/> instances.</param>
+        /// <param name="policies">The configured <see cref="IDestructuringPolicy" /> instances.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public SqlLogger(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, LocationStore locations)
+        public SqlLogger(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, ILocationStore locations)
         {
             Argument.NotNull(options, nameof(options));
 
@@ -56,7 +56,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Debug(Exception exception, string template, params object[] properties)
         {
-            _logger.Debug(exception, template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Debug(exception, template, properties);
+            }
         }
 
         /// <summary>
@@ -66,7 +69,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Debug(string template, params object[] properties)
         {
-            _logger.Debug(template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Debug(template, properties);
+            }
         }
 
         /// <summary>
@@ -90,7 +96,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Error(string template, params object[] properties)
         {
-            _logger.Error(template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Error(template, properties);
+            }
         }
 
         /// <summary>
@@ -101,7 +110,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Fatal(Exception exception, string template, params object[] properties)
         {
-            _logger.Fatal(exception, template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Fatal(exception, template, properties);
+            }
         }
 
         /// <summary>
@@ -111,7 +123,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Fatal(string template, params object[] properties)
         {
-            _logger.Fatal(template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Fatal(template, properties);
+            }
         }
 
         /// <summary>
@@ -122,7 +137,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Information(Exception exception, string template, params object[] properties)
         {
-            _logger.Information(exception, template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Information(exception, template, properties);
+            }
         }
 
         /// <summary>
@@ -132,7 +150,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Information(string template, params object[] properties)
         {
-            _logger.Information(template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Information(template, properties);
+            }
         }
 
         /// <summary>
@@ -143,7 +164,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Verbose(Exception exception, string template, params object[] properties)
         {
-            _logger.Verbose(exception, template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Verbose(exception, template, properties);
+            }
         }
 
         /// <summary>
@@ -153,7 +177,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Verbose(string template, params object[] properties)
         {
-            _logger.Verbose(template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Verbose(template, properties);
+            }
         }
 
         /// <summary>
@@ -164,7 +191,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Warning(Exception exception, string template, params object[] properties)
         {
-            _logger.Warning(exception, template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Warning(exception, template, properties);
+            }
         }
 
         /// <summary>
@@ -174,12 +204,15 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="properties">Objects positionally formatted into the message template.</param>
         public void Warning(string template, params object[] properties)
         {
-            _logger.Warning(template, properties);
+            using (LogContext.PushProperties(new LogEventEnricher(properties)))
+            {
+                _logger.Warning(template, properties);
+            }
         }
 
         #region IDisposable Implementation
 
-        bool _disposed;
+        private bool _disposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -191,7 +224,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="SerilogLogger"/> class.
+        /// Finalizes an instance of the <see cref="SerilogLogger" /> class.
         /// </summary>
         ~SqlLogger()
         {

@@ -39,10 +39,15 @@ namespace Slalom.Stacks.ConsoleClient
                 {
                     stack.UseSqlServerLogging();
 
+                    stack.Logger.Debug("adsf");
+
                     stack.Send("go").Wait();
 
 
                     stack.GetEvents().OutputToJson();
+
+                    Console.WriteLine("...");
+                    Console.ReadKey();
 
                 }
             }

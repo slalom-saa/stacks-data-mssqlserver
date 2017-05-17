@@ -54,7 +54,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
 
         readonly DataTable _eventsTable;
         readonly IFormatProvider _formatProvider;
-        private readonly LocationStore _locations;
+        private readonly ILocationStore _locations;
 
         private readonly JsonFormatter _jsonFormatter;
         readonly string _tableName;
@@ -77,7 +77,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             IFormatProvider formatProvider,
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
-            LocationStore locations = null
+            ILocationStore locations = null
         )
             : base(batchPostingLimit, period)
         {

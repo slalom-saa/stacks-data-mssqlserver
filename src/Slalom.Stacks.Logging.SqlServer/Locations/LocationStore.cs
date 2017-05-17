@@ -14,7 +14,7 @@ using Slalom.Stacks.Logging.SqlServer.Core;
 
 namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
-    public class LocationStore : IDisposable
+    public class LocationStore : IDisposable, ILocationStore
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly IPInformationProvider _provider;
