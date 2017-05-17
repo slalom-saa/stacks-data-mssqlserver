@@ -24,7 +24,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     public class EventStore : PeriodicBatcher<EventEntry>, IEventStore
     {
         private SqlServerLoggingOptions _options;
-        private LocationStore _locations;
+        private ILocationStore _locations;
         private IEnvironmentContext _environment;
         private DataTable _eventsTable;
 
@@ -34,7 +34,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public EventStore(SqlServerLoggingOptions options, LocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
+        public EventStore(SqlServerLoggingOptions options, ILocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(locations, nameof(locations));

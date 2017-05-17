@@ -11,6 +11,11 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
     public class IPInformationProvider
     {
+        public IPInformationProvider()
+        {
+            
+        }
+
         public IPInformation Get(string address)
         {
             using (var client = new WebServiceClient(119543, "1Ksa6iuvfOJu"))

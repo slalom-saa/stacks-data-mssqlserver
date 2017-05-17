@@ -27,7 +27,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="policies">The configured <see cref="IDestructuringPolicy"/> instances.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
-        public SqlLogger(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, LocationStore locations)
+        public SqlLogger(SqlServerLoggingOptions options, IEnumerable<IDestructuringPolicy> policies, ILocationStore locations)
         {
             Argument.NotNull(options, nameof(options));
 

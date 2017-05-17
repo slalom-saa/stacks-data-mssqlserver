@@ -49,7 +49,7 @@ namespace Slalom.Stacks.Logging.SqlServer
             builder.Register(c => new DestructuringPolicy()).SingleInstance()
                    .AsImplementedInterfaces();
 
-            builder.Register(c => new SqlLogger(_options, c.Resolve<IEnumerable<IDestructuringPolicy>>(), c.Resolve<LocationStore>()))
+            builder.RegisterType<SqlLogger>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
                    .AsImplementedInterfaces()
                    .SingleInstance()
                    .PreserveExistingDefaults();
@@ -87,18 +87,26 @@ namespace Slalom.Stacks.Logging.SqlServer
                     table.CreateTable(c.Instance.CreateTable());
                 });
 
-            builder.Register(c => new IPInformationProvider());
+            if (_options.Locations.On)
+            {
+                builder.Register(c => new IPInformationProvider());
 
-            builder.RegisterType<LocationStore>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
-                   .AsImplementedInterfaces()
-                   .AsSelf()
-                   .SingleInstance()
-                   .PropertiesAutowired(AllProperties.Instance)
-                   .OnActivated(c =>
-                   {
-                       var table = new SqlTableCreator(_options.ConnectionString);
-                       table.CreateTable(c.Instance.CreateTable());
-                   });
+                builder.RegisterType<LocationStore>()
+                    .WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
+                    .AsImplementedInterfaces()
+                    .AsSelf()
+                    .SingleInstance()
+                    .PropertiesAutowired(AllProperties.Instance)
+                    .OnActivated(c =>
+                    {
+                        var table = new SqlTableCreator(_options.ConnectionString);
+                        table.CreateTable(c.Instance.CreateTable());
+                    });
+            }
+            else
+            {
+                builder.RegisterType<NullLocationStore>().AsImplementedInterfaces().SingleInstance();
+            }
         }
     }
 }

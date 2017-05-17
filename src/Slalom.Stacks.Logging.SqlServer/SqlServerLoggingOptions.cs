@@ -7,10 +7,9 @@
 
 using System;
 using Serilog.Events;
+using Slalom.Stacks.Logging.SqlServer.Locations;
 using Slalom.Stacks.Validation;
 
-
-// TODO: Add location configuration
 namespace Slalom.Stacks.Logging.SqlServer
 {
     /// <summary>
@@ -35,6 +34,12 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// </summary>
         /// <value>The name of the table that is used for events.</value>
         public string EventsTableName { get; set; } = "Events";
+
+        /// <summary>
+        /// Gets or sets the location settings.
+        /// </summary>
+        /// <value>The location settings.</value>
+        public LocationSettings Locations { get; set; } = new LocationSettings();
 
         /// <summary>
         /// Gets or sets the time between batches.

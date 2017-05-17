@@ -59,7 +59,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             IFormatProvider formatProvider = null,
             bool autoCreateSqlTable = false,
             ColumnOptions columnOptions = null,
-            LocationStore locations = null
+            ILocationStore locations = null
         )
         {
             if (loggerConfiguration == null)

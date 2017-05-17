@@ -67,6 +67,32 @@
                   "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/TraceTableName",
                   "title": "Trace Table Name",
                   "type": "string"
+                },
+                "Locations": {
+                  "additionalProperties": true,
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations",
+                  "properties": {
+                    "Key": {
+                      "description": "The MaxMind account key.",
+                      "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/Key",
+                      "title": "Key",
+                      "type": "string"
+                    },
+                    "On": {
+                      "default": false,
+                      "description": "Indicates whether locations should be used in logging.",
+                      "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/On",
+                      "title": "The On Schema",
+                      "type": "boolean"
+                    },
+                    "UserId": {
+                      "description": "The MaxMind user ID.",
+                      "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/UserId",
+                      "title": "User ID",
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
                 }
               },
               "type": "object"

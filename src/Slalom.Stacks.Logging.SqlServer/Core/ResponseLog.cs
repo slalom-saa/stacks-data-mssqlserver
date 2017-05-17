@@ -27,7 +27,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     public class ResponseLog : PeriodicBatcher<ResponseEntry>, IResponseLog
     {
         private readonly SqlServerLoggingOptions _options;
-        private readonly LocationStore _locations;
+        private readonly ILocationStore _locations;
         private readonly IEnvironmentContext _environment;
         private readonly DataTable _eventsTable;
 
@@ -37,7 +37,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public ResponseLog(SqlServerLoggingOptions options, LocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
+        public ResponseLog(SqlServerLoggingOptions options, ILocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(locations, nameof(locations));
