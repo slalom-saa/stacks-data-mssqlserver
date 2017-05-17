@@ -30,6 +30,12 @@ namespace Slalom.Stacks.Logging.SqlServer
         public string ConnectionString { get; set; } = "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True";
 
         /// <summary>
+        /// Gets or sets a value indicating whether or not a database should be created if not found.
+        /// </summary>
+        /// <value>Indicates whether or not a database should be created if not found.</value>
+        public bool CreateDatabase { get; set; }
+
+        /// <summary>
         /// Gets or sets the name of the table that is used for events.
         /// </summary>
         /// <value>The name of the table that is used for events.</value>

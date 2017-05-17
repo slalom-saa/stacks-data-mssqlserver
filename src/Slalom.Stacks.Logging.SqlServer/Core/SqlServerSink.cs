@@ -163,7 +163,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                     }
                 }
 
-                await _locations.UpdateAsync(_eventsTable.Rows.OfType<DataRow>().Select(e => e["SourceAddress"].ToString()).Distinct().ToArray()).ConfigureAwait(false);
+                await _locations.Append(_eventsTable.Rows.OfType<DataRow>().Select(e => e["SourceAddress"].ToString()).Distinct().ToArray()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

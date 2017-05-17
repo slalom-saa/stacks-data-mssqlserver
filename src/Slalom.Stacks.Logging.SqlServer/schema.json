@@ -18,6 +18,13 @@
                   "title": "Batch Size",
                   "type": "integer"
                 },
+                "CreateDatabase": {
+                  "default": false,
+                  "description": "Indicates whether or not a database should be created if not found.",
+                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/CreateDatabase",
+                  "title": "Create Database",
+                  "type": "boolean"
+                },
                 "SelectLimit": {
                   "default": 1000,
                   "description": "The top number of items to select when querying tables.",
@@ -82,7 +89,7 @@
                       "default": false,
                       "description": "Indicates whether locations should be used in logging.",
                       "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/On",
-                      "title": "The On Schema",
+                      "title": "On",
                       "type": "boolean"
                     },
                     "UserId": {

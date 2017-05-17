@@ -35,7 +35,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// Initializes a new instance of the <see cref="RequestLog" /> class.
         /// </summary>
         /// <param name="options">The configured options.</param>
-        /// <param name="locations">The configured <see cref="LocationStore" />.</param>
+        /// <param name="locations">The configured <see cref="ILocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
         public RequestLog(SqlServerLoggingOptions options, ILocationStore locations, IEnvironmentContext environment)
             : base(options.BatchSize, options.Period)
@@ -196,7 +196,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             }
             _eventsTable.Clear();
 
-            await _locations.UpdateAsync(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
+            await _locations.Append(list.Select(e => e.SourceAddress).Distinct().ToArray()).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<RequestEntry>> GetEntries(DateTimeOffset? start, DateTimeOffset? end)

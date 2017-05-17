@@ -7,6 +7,7 @@ using Autofac;
 using Newtonsoft.Json;
 using Slalom.Stacks.Logging;
 using Slalom.Stacks.Logging.SqlServer;
+using Slalom.Stacks.Logging.SqlServer.Locations;
 using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Logging;
@@ -35,18 +36,13 @@ namespace Slalom.Stacks.ConsoleClient
         {
             try
             {
+
                 using (var stack = new Stack(typeof(Program)))
                 {
                     stack.UseSqlServerLogging();
 
-                    stack.Logger.Debug("adsf");
+                    stack.Logger.Debug("hello");
 
-                    stack.Send("go").Wait();
-
-
-                    stack.GetEvents().OutputToJson();
-
-                    Console.WriteLine("...");
                     Console.ReadKey();
 
                 }
