@@ -40,13 +40,9 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         		
         public int CreateTable(DataTable table)
         {
-          
-
             if (table == null) return 0;
 
             if (string.IsNullOrWhiteSpace(table.TableName) || string.IsNullOrWhiteSpace(_connectionString)) return 0;
-
-            EnsureDatabase();
 
             _tableName = table.TableName;
             using (var conn = new SqlConnection(_connectionString))

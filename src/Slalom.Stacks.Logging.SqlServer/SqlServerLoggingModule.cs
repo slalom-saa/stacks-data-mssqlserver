@@ -54,6 +54,11 @@ namespace Slalom.Stacks.Logging.SqlServer
                    .SingleInstance()
                    .PreserveExistingDefaults();
 
+            if (_options.CreateDatabase)
+            {
+                new SqlTableCreator(_options.ConnectionString).EnsureDatabase();
+            }
+
             builder.RegisterType<ResponseLog>().WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
                    .AsImplementedInterfaces()
                    .AsSelf()
