@@ -36,12 +36,17 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
 
         #endregion
 
-        #region Instance Methods				
+        #region Instance Methods		
+        		
         public int CreateTable(DataTable table)
         {
+          
+
             if (table == null) return 0;
 
             if (string.IsNullOrWhiteSpace(table.TableName) || string.IsNullOrWhiteSpace(_connectionString)) return 0;
+
+            EnsureDatabase();
 
             _tableName = table.TableName;
             using (var conn = new SqlConnection(_connectionString))
@@ -55,12 +60,38 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
 
             }
         }
+
+        public void EnsureDatabase()
+        {
+            var builder = new SqlConnectionStringBuilder(_connectionString);
+
+            var sql = new StringBuilder();
+            sql.AppendLine($"IF NOT EXISTS(SELECT name FROM master.dbo.sysdatabases WHERE name = '{builder.InitialCatalog}')");
+            sql.AppendLine("BEGIN");
+            sql.AppendLine($"CREATE DATABASE {builder.InitialCatalog}");
+            sql.AppendLine("END");
+
+            builder.InitialCatalog = "master";
+
+            using (var connection = new SqlConnection(builder.ToString()))
+            {
+                connection.Open();
+                using (var command = new SqlCommand(sql.ToString(), connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
         #endregion
 
         #region Static Methods
 
         private static string GetSqlFromDataTable(string tableName, DataTable table)
         {
+            
+
             StringBuilder sql = new StringBuilder();
             sql.AppendFormat("IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = '{0}' AND xtype = 'U')", tableName);
             sql.AppendLine(" BEGIN");
