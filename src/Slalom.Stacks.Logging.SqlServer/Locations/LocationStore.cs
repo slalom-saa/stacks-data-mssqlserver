@@ -6,25 +6,27 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Slalom.Stacks.Logging.SqlServer.Batching;
 using Slalom.Stacks.Logging.SqlServer.Core;
+using Slalom.Stacks.Text;
 
 namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
-    public class LocationStore : IDisposable, ILocationStore
+    public class LocationBatcher : PeriodicBatcher<string>, ILocationStore
     {
-        private readonly SqlServerLoggingOptions _options;
         private readonly IPInformationProvider _provider;
+        private readonly SqlServerLoggingOptions _options;
 
-        private DataTable _locationsTable;
-
-        public LocationStore(SqlServerLoggingOptions options, IPInformationProvider provider)
+        public LocationBatcher(IPInformationProvider provider, SqlServerLoggingOptions options) : base(options.BatchSize, options.Period)
         {
-            _options = options;
             _provider = provider;
+            _options = options;
         }
 
         public DataTable CreateTable()
@@ -55,109 +57,78 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
             {
                 DataType = typeof(string)
             });
+            table.Columns.Add(new DataColumn("City")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Country")
+            {
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Postal")
+            {
+                DataType = typeof(string)
+            });
             return table;
         }
 
-        public async Task UpdateAsync(params string[] addresses)
+        protected override Task EmitBatchAsync(IEnumerable<string> events)
         {
-            var table = this.GetTable();
-
-            foreach (var address in addresses)
+            using (var connection = new SqlConnection(_options.ConnectionString))
             {
-                if (table.Rows.OfType<DataRow>().All(e => e[1].ToString() != address))
+                connection.Open();
+
+                var current = GetCurrentIPAddresses(connection);
+
+                var added = events.Except(current).Distinct();
+
+                var sql = new StringBuilder();
+                foreach (var item in added)
                 {
-                    var current = _provider.Get(address);
-                    table.Rows.Add(null, current.IPAddress, current.Latitude, current.Longitude, current.Isp);
+                    try
+                    {
+                        var info = _provider.Get(item);
+                        sql.AppendLine($"INSERT INTO [dbo].[Locations] ([IPAddress],[Latitude],[Longitude],[ISP],[City],[Country],[Postal]) VALUES ('{item}', {info.Latitude}, {info.Longitude}, '{info.Isp.Replace("'", "''")}', '{info.City.Replace("'", "''")}', '{info.Country.Replace("'", "''")}', '{info.Postal.Replace("'", "''")}')");
+
+                    }
+                    catch
+                    {
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    using (var command = new SqlCommand(sql.ToString(), connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
+            return Task.FromResult(0);
+        }
 
-            var changes = table.GetChanges();
-            if (changes != null && changes.Rows.Count != 0)
+        private static IEnumerable<string> GetCurrentIPAddresses(SqlConnection connection)
+        {
+            using (var command = new SqlCommand("SELECT DISTINCT IPAddress FROM Locations", connection))
             {
-                using (var connection = new SqlConnection(_options.ConnectionString))
+                using (var reader = command.ExecuteReader())
                 {
-                    connection.Open();
-                    using (var copy = new SqlBulkCopy(connection))
+                    while (reader.Read())
                     {
-                        copy.DestinationTableName = string.Format(table.TableName);
-                        foreach (var column in table.Columns)
-                        {
-                            var columnName = ((DataColumn) column).ColumnName;
-                            var mapping = new SqlBulkCopyColumnMapping(columnName, columnName);
-                            copy.ColumnMappings.Add(mapping);
-                        }
-
-                        await copy.WriteToServerAsync(changes).ConfigureAwait(false);
-
-                        table.AcceptChanges();
+                        yield return reader.GetString(0);
                     }
                 }
             }
         }
 
-        private DataTable GetTable()
+
+        public Task Append(params string[] addresses)
         {
-            if (_locationsTable == null)
+            foreach (var address in addresses.Where(e => !String.IsNullOrWhiteSpace(e)))
             {
-                _locationsTable = this.CreateTable();
-                using (var connection = new SqlConnection(_options.ConnectionString))
-                {
-                    connection.Open();
-                    using (var adapter = new SqlDataAdapter("SELECT * FROM " + _locationsTable.TableName, connection))
-                    {
-                        adapter.Fill(_locationsTable);
-                        _locationsTable.AcceptChanges();
-                    }
-                }
+                this.Emit(address);
             }
-            return _locationsTable;
+            return Task.FromResult(0);
         }
-
-        #region IDisposable Implementation
-
-        bool _disposed;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="LocationStore"/> class.
-        /// </summary>
-        ~LocationStore()
-        {
-            this.Dispose(false);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // free other managed objects that implement IDisposable only
-                _locationsTable?.Dispose();
-            }
-
-            // release any unmanaged objects
-            // set the object references to null
-            _locationsTable = null;
-
-            _disposed = true;
-        }
-
-        #endregion
     }
+ 
 }

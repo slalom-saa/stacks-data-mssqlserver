@@ -7,7 +7,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
     public class NullLocationStore : ILocationStore
     {
-        public Task UpdateAsync(params string[] addresses)
+        public Task Append(params string[] addresses)
         {
             return Task.FromResult(0);
         }

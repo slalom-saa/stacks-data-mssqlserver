@@ -96,17 +96,29 @@ namespace Slalom.Stacks.Logging.SqlServer
             {
                 builder.Register(c => new IPInformationProvider());
 
-                builder.RegisterType<LocationStore>()
+                builder.RegisterType<LocationBatcher>()
                     .WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
-                    .AsImplementedInterfaces()
                     .AsSelf()
+                    .AsImplementedInterfaces()
                     .SingleInstance()
-                    .PropertiesAutowired(AllProperties.Instance)
+                    .AllPropertiesAutowired()
                     .OnActivated(c =>
                     {
                         var table = new SqlTableCreator(_options.ConnectionString);
                         table.CreateTable(c.Instance.CreateTable());
                     });
+
+                //builder.RegisterType<LocationStore>()
+                //    .WithParameter(new TypedParameter(typeof(SqlServerLoggingOptions), _options))
+                //    .AsImplementedInterfaces()
+                //    .AsSelf()
+                //    .SingleInstance()
+                //    .PropertiesAutowired(AllProperties.Instance)
+                //    .OnActivated(c =>
+                //    {
+                //        var table = new SqlTableCreator(_options.ConnectionString);
+                //        table.CreateTable(c.Instance.CreateTable());
+                //    });
             }
             else
             {

@@ -16,5 +16,11 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
         public string Isp { get; set; }
 
         public string IPAddress { get; set; }
+
+        public string City { get; set; }
+
+        public string Country { get; set; }
+
+        public string Postal { get; set; }
     }
 }

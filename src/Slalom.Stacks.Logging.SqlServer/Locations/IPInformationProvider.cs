@@ -13,7 +13,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
     {
         public IPInformationProvider()
         {
-            
+
         }
 
         public IPInformation Get(string address)
@@ -29,7 +29,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
                         Latitude = response.Location.Latitude,
                         Longitude = response.Location.Longitude,
                         Isp = response.Traits.Isp,
-                        IPAddress = response.Traits.IPAddress
+                        IPAddress = response.Traits.IPAddress,
+                        City = response.City.Name,
+                        Country = response.Country.Name,
+                        Postal = response.Postal.Code
                     };
                 }
                 catch

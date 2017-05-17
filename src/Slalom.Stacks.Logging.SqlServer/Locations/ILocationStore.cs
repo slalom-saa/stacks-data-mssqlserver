@@ -4,6 +4,6 @@ namespace Slalom.Stacks.Logging.SqlServer.Locations
 {
     public interface ILocationStore
     {
-        Task UpdateAsync(params string[] addresses);
+        Task Append(params string[] addresses);
     }
 }
