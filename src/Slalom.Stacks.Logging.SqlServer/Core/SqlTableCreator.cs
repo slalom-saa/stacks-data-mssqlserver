@@ -68,7 +68,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             var sql = new StringBuilder();
             sql.AppendLine($"IF NOT EXISTS(SELECT name FROM master.dbo.sysdatabases WHERE name = '{builder.InitialCatalog}')");
             sql.AppendLine("BEGIN");
-            sql.AppendLine($"CREATE DATABASE {builder.InitialCatalog}");
+            sql.AppendLine($"CREATE DATABASE [{builder.InitialCatalog}]");
             sql.AppendLine("END");
 
             builder.InitialCatalog = "master";

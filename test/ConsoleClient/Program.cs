@@ -46,6 +46,9 @@ namespace Slalom.Stacks.ConsoleClient
 
                     stack.GetEvents().OutputToJson();
 
+                    Console.WriteLine("...");
+                    Console.ReadKey();
+
                 }
             }
             catch (Exception exception)
