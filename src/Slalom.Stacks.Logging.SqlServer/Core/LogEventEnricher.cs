@@ -41,7 +41,8 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("ApplicationName", new ScalarValue(_environment.ApplicationName)));
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("EnvironmentName", new ScalarValue(_environment.EnvironmentName)));
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("MachineName", new ScalarValue(_environment.MachineName)));
-                logEvent.AddPropertyIfAbsent(new LogEventProperty("ThreadId", new ScalarValue(_environment.ThreadId)));
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Build", new ScalarValue(_environment.Build)));
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Version", new ScalarValue(_environment.Version)));
             }
         }
     }

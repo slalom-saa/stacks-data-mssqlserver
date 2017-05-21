@@ -133,10 +133,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 DataType = typeof(string)
             });
-            table.Columns.Add(new DataColumn("ThreadId")
-            {
-                DataType = typeof(int)
-            });
+          
             return table;
         }
 
@@ -158,8 +155,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                     item.UserName,
                     item.ApplicationName,
                     item.EnvironmentName,
-                    item.MachineName,
-                    item.ThreadId);
+                    item.MachineName);
             }
             _eventsTable.AcceptChanges();
         }
@@ -253,8 +249,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                                     RequestId = e["RequestId"].GetValue<string>(),
                                     ApplicationName = e["ApplicationName"].GetValue<string>(),
                                     EnvironmentName = e["Environment"].GetValue<string>(),
-                                    MachineName = e["MachineName"].GetValue<string>(),
-                                    ThreadId = e["ThreadId"].GetValue<int>(),
+                                    MachineName = e["MachineName"].GetValue<string>()
                                 });
                         }
                     }

@@ -117,9 +117,13 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 DataType = typeof(DateTimeOffset)
             });
-            table.Columns.Add(new DataColumn("ThreadId")
+            table.Columns.Add(new DataColumn("Version")
             {
-                DataType = typeof(int)
+                DataType = typeof(string)
+            });
+            table.Columns.Add(new DataColumn("Build")
+            {
+                DataType = typeof(string)
             });
             table.Columns.Add(new DataColumn("ValidationErrors")
             {
@@ -147,7 +151,8 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                     item.RequestId,
                     item.Path,
                     item.Started,
-                    item.ThreadId,
+                    item.Version,
+                    item.Build,
                     item.ValidationErrors.Any() ? String.Join(";#;", item.ValidationErrors.Select(e => e.Type + ": " + e.Message)) : null);
             }
             _eventsTable.AcceptChanges();
@@ -274,7 +279,8 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
                                     RequestId = e["RequestId"].GetValue<string>(),
                                     EndPoint = e["Endpoint"].GetValue<string>(),
                                     Started = e["Started"].GetValue<DateTimeOffset>(),
-                                    ThreadId = e["ThreadId"].GetValue<int>(),
+                                    Version = e["Version"].GetValue<string>(),
+                                    Build = e["Build"].GetValue<string>(),
                                     TimeStamp = e["TimeStamp"].GetValue<DateTimeOffset>(),
                                     ValidationErrors = this.GetValidationErrors(e["ValidationErrors"].GetValue<string>()),
                                 });
