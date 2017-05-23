@@ -134,7 +134,8 @@ namespace Slalom.Stacks.Logging.SqlServer.Batching
                     batchWasFull = _waitingBatch.Count >= _batchSizeLimit;
                     _waitingBatch.Clear();
                     _status.MarkSuccess();
-                } while (batchWasFull); // Otherwise, allow the period to elapse
+                }
+                while (batchWasFull); // Otherwise, allow the period to elapse
             }
             catch (Exception ex)
             {
