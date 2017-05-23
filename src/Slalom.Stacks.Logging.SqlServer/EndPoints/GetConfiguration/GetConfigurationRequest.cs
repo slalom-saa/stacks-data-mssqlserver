@@ -1,4 +1,4 @@
-﻿namespace Slalom.Stacks.Logging.SqlServer.EndPoints
+﻿namespace Slalom.Stacks.Logging.SqlServer.EndPoints.GetConfiguration
 {
     /// <summary>
     /// Request to get the SQL Server Logging configuration.

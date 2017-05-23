@@ -28,7 +28,6 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// Gets the connection string.
         /// </summary>
         /// <value>The connection string.</value>
-        [Secure]
         public string ConnectionString { get; set; } = "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True";
 
         /// <summary>

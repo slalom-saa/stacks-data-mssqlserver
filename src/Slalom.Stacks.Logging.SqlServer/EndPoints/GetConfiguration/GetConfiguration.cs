@@ -8,7 +8,7 @@
 using Microsoft.Extensions.Configuration;
 using Slalom.Stacks.Services;
 
-namespace Slalom.Stacks.Logging.SqlServer.EndPoints
+namespace Slalom.Stacks.Logging.SqlServer.EndPoints.GetConfiguration
 {
     /// <summary>
     /// Gets the SQL Logging configuration.
