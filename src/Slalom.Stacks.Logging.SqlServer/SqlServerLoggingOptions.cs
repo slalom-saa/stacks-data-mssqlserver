@@ -8,6 +8,7 @@
 using System;
 using Serilog.Events;
 using Slalom.Stacks.Logging.SqlServer.Locations;
+using Slalom.Stacks.Serialization;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -27,6 +28,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         /// Gets the connection string.
         /// </summary>
         /// <value>The connection string.</value>
+        [Secure]
         public string ConnectionString { get; set; } = "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True";
 
         /// <summary>
