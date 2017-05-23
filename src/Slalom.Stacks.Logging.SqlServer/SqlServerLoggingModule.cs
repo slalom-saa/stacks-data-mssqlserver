@@ -12,7 +12,6 @@ using Serilog.Core;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.SqlServer.Core;
 using Slalom.Stacks.Logging.SqlServer.Locations;
-using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer

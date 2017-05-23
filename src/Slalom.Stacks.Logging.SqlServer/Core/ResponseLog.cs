@@ -12,9 +12,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.SqlServer.Batching;
 using Slalom.Stacks.Logging.SqlServer.Locations;
-using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Validation;
 
@@ -28,7 +28,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly ILocationStore _locations;
-        private readonly IEnvironmentContext _environment;
+        private readonly Application _environment;
         private readonly DataTable _eventsTable;
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public ResponseLog(SqlServerLoggingOptions options, ILocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
+        public ResponseLog(SqlServerLoggingOptions options, ILocationStore locations, Application environment) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(locations, nameof(locations));
@@ -234,22 +234,21 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 builder.Append(" AND TimeStamp <= \'" + end + "\'");
             }
-            var environment = _environment.Resolve();
-            if (String.IsNullOrWhiteSpace(environment.ApplicationName))
+            if (String.IsNullOrWhiteSpace(_environment.Title))
             {
                 builder.Append(" AND ApplicationName is NULL");
             }
             else
             {
-                builder.Append(" AND ApplicationName = \'" + environment.ApplicationName + "\'");
+                builder.Append(" AND ApplicationName = \'" + _environment.Title + "\'");
             }
-            if (String.IsNullOrWhiteSpace(environment.EnvironmentName))
+            if (String.IsNullOrWhiteSpace(_environment.Environment))
             {
                 builder.Append(" AND Environment is NULL");
             }
             else
             {
-                builder.Append(" AND Environment = \'" + environment.EnvironmentName + "\'");
+                builder.Append(" AND Environment = \'" + _environment.Environment + "\'");
             }
 
             using (var connection = new SqlConnection(_options.ConnectionString))

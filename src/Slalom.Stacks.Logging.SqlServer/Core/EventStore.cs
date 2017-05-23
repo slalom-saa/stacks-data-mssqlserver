@@ -12,9 +12,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.SqlServer.Batching;
 using Slalom.Stacks.Logging.SqlServer.Locations;
-using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
@@ -25,16 +25,16 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     {
         private SqlServerLoggingOptions _options;
         private ILocationStore _locations;
-        private IEnvironmentContext _environment;
+        private Application _environment;
         private DataTable _eventsTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventStore" /> class.
         /// </summary>
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
-        /// <param name="locations">The configured <see cref="LocationStore" />.</param>
+        /// <param name="locations">The configured <see cref="ILocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public EventStore(SqlServerLoggingOptions options, ILocationStore locations, IEnvironmentContext environment) : base(options.BatchSize, options.Period)
+        public EventStore(SqlServerLoggingOptions options, ILocationStore locations, Application environment) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(locations, nameof(locations));
@@ -94,7 +94,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         {
             Argument.NotNull(instance, nameof(instance));
 
-            this.Emit(new EventEntry(instance, _environment.Resolve()));
+            this.Emit(new EventEntry(instance, _environment));
 
             return Task.FromResult(0);
         }
@@ -110,22 +110,21 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 builder.Append(" AND TimeStamp <= \'" + end + "\'");
             }
-            var environment = _environment.Resolve();
-            if (String.IsNullOrWhiteSpace(environment.ApplicationName))
+            if (String.IsNullOrWhiteSpace(_environment.Title))
             {
                 builder.Append(" AND ApplicationName is NULL");
             }
             else
             {
-                builder.Append(" AND ApplicationName = \'" + environment.ApplicationName + "\'");
+                builder.Append(" AND ApplicationName = \'" + _environment.Title + "\'");
             }
-            if (String.IsNullOrWhiteSpace(environment.EnvironmentName))
+            if (String.IsNullOrWhiteSpace(_environment.Environment))
             {
                 builder.Append(" AND Environment is NULL");
             }
             else
             {
-                builder.Append(" AND Environment = \'" + environment.EnvironmentName + "\'");
+                builder.Append(" AND Environment = \'" + _environment.Environment + "\'");
             }
 
             using (var connection = new SqlConnection(_options.ConnectionString))

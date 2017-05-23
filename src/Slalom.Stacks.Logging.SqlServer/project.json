@@ -1,5 +1,5 @@
 {
-  "version": "1.8.14-*",
+  "version": "1.8.15-*",
   "authors": [
     "Stacks Contributors"
   ],
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "MaxMind.GeoIP2": "2.7.2",
-    "Slalom.Stacks": "1.8.14"
+    "Slalom.Stacks": "1.8.15"
   },
   "buildOptions": {
     "additionalArguments": [

@@ -13,8 +13,8 @@ namespace Slalom.Stacks.Logging.SqlServer.EndPoints
     /// <summary>
     /// Gets the SQL Logging configuration.
     /// </summary>
-    [EndPoint("_system/configuration/sql-logging")]
-    public class GetConfiguration : EndPoint
+    [EndPoint("_system/configuration/sql-logging", Method = "GET", Name = "Get SQL Sever Logging Configuration", Public = false)]
+    public class GetConfiguration : EndPoint<GetConfigurationRequest, SqlServerLoggingOptions>
     {
         private readonly IConfiguration _configuration;
 
@@ -28,11 +28,13 @@ namespace Slalom.Stacks.Logging.SqlServer.EndPoints
         }
 
         /// <inheritdoc />
-        public override void Receive()
+        public override SqlServerLoggingOptions Receive(GetConfigurationRequest instance)
         {
             var options = new SqlServerLoggingOptions();
+
             _configuration.GetSection("Stacks:Logging:SqlServer").Bind(options);
-            this.Respond(options);
+
+            return options;
         }
     }
 }

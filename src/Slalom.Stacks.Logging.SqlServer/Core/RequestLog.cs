@@ -12,9 +12,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Logging.SqlServer.Batching;
 using Slalom.Stacks.Logging.SqlServer.Locations;
-using Slalom.Stacks.Runtime;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Services.Messaging;
 using Slalom.Stacks.Validation;
@@ -27,7 +27,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     public class RequestLog : PeriodicBatcher<RequestEntry>, IRequestLog
     {
         private readonly ILocationStore _locations;
-        private readonly IEnvironmentContext _environment;
+        private readonly Application _environment;
         private readonly DataTable _eventsTable;
         private readonly SqlServerLoggingOptions _options;
 
@@ -37,7 +37,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         /// <param name="options">The configured options.</param>
         /// <param name="locations">The configured <see cref="ILocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public RequestLog(SqlServerLoggingOptions options, ILocationStore locations, IEnvironmentContext environment)
+        public RequestLog(SqlServerLoggingOptions options, ILocationStore locations, Application environment)
             : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
@@ -60,7 +60,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
         {
             Argument.NotNull(request, nameof(request));
 
-            this.Emit(new RequestEntry(request, _environment.Resolve()));
+            this.Emit(new RequestEntry(request, _environment));
 
             return Task.FromResult(0);
         }
@@ -206,22 +206,21 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             {
                 builder.Append(" AND TimeStamp <= \'" + end + "\'");
             }
-            var environment = _environment.Resolve();
-            if (String.IsNullOrWhiteSpace(environment.ApplicationName))
+            if (String.IsNullOrWhiteSpace(_environment.Title))
             {
                 builder.Append(" AND ApplicationName is NULL");
             }
             else
             {
-                builder.Append(" AND ApplicationName = \'" + environment.ApplicationName + "\'");
+                builder.Append(" AND ApplicationName = \'" + _environment.Title + "\'");
             }
-            if (String.IsNullOrWhiteSpace(environment.EnvironmentName))
+            if (String.IsNullOrWhiteSpace(_environment.Environment))
             {
                 builder.Append(" AND Environment is NULL");
             }
             else
             {
-                builder.Append(" AND Environment = \'" + environment.EnvironmentName + "\'");
+                builder.Append(" AND Environment = \'" + _environment.Environment + "\'");
             }
             using (var connection = new SqlConnection(_options.ConnectionString))
             {

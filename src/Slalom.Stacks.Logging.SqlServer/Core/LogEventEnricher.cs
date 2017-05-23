@@ -6,9 +6,10 @@
  */
 
 using System.Linq;
+using System.Reflection;
 using Serilog.Core;
 using Serilog.Events;
-using Slalom.Stacks.Runtime;
+using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Services.Messaging;
 
 namespace Slalom.Stacks.Logging.SqlServer.Core
@@ -16,12 +17,12 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
     public class LogEventEnricher : ILogEventEnricher
     {
         private readonly ExecutionContext _context;
-        private Environment _environment;
+        private Application _environment;
 
         public LogEventEnricher(object[] context)
         {
             _context = context.OfType<ExecutionContext>().FirstOrDefault();
-            _environment = context.OfType<Environment>().FirstOrDefault();
+            _environment = context.OfType<Application>().FirstOrDefault();
         }
 
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
@@ -38,10 +39,10 @@ namespace Slalom.Stacks.Logging.SqlServer.Core
             }
             if (_environment != null)
             {
-                logEvent.AddPropertyIfAbsent(new LogEventProperty("ApplicationName", new ScalarValue(_environment.ApplicationName)));
-                logEvent.AddPropertyIfAbsent(new LogEventProperty("EnvironmentName", new ScalarValue(_environment.EnvironmentName)));
-                logEvent.AddPropertyIfAbsent(new LogEventProperty("MachineName", new ScalarValue(_environment.MachineName)));
-                logEvent.AddPropertyIfAbsent(new LogEventProperty("Build", new ScalarValue(_environment.Build)));
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("ApplicationName", new ScalarValue(_environment.Title)));
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("EnvironmentName", new ScalarValue(_environment.Environment)));
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("MachineName", new ScalarValue(System.Environment.MachineName)));
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Build", new ScalarValue(Assembly.GetEntryAssembly().GetName().Version.ToString())));
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("Version", new ScalarValue(_environment.Version)));
             }
         }
