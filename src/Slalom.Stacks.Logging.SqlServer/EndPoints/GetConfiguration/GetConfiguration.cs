@@ -6,6 +6,7 @@
  */
 
 using Microsoft.Extensions.Configuration;
+using Slalom.Stacks.Logging.SqlServer.Settings;
 using Slalom.Stacks.Services;
 
 namespace Slalom.Stacks.Logging.SqlServer.EndPoints.GetConfiguration

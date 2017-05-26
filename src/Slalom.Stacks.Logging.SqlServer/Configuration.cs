@@ -9,6 +9,8 @@ using System;
 using System.Collections;
 using Autofac;
 using Microsoft.Extensions.Configuration;
+using Slalom.Stacks.Logging.SqlServer.Module;
+using Slalom.Stacks.Logging.SqlServer.Settings;
 using Slalom.Stacks.Validation;
 
 namespace Slalom.Stacks.Logging.SqlServer
@@ -16,7 +18,7 @@ namespace Slalom.Stacks.Logging.SqlServer
     /// <summary>
     /// Contains extension methods to add SQL Server Logging blocks.
     /// </summary>
-    public static class ConfigurationExtensions
+    public static class Configuration
     {
         /// <summary>
         /// Adds the SQL Server Auditing block to the container.
@@ -28,7 +30,7 @@ namespace Slalom.Stacks.Logging.SqlServer
         {
             Argument.NotNull(instance, nameof(instance));
 
-            instance.Include(typeof(ConfigurationExtensions).Assembly);
+            instance.Include(typeof(Configuration).Assembly);
 
             var options = new SqlServerLoggingOptions();
             configuration?.Invoke(options);

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Slalom.Stacks.Logging.SqlServer.Locations
+namespace Slalom.Stacks.Logging.SqlServer.Components.Locations
 {
     public interface ILocationStore
     {

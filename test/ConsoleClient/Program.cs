@@ -7,7 +7,6 @@ using Autofac;
 using Newtonsoft.Json;
 using Slalom.Stacks.Logging;
 using Slalom.Stacks.Logging.SqlServer;
-using Slalom.Stacks.Logging.SqlServer.Locations;
 using Slalom.Stacks.Services;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Text;

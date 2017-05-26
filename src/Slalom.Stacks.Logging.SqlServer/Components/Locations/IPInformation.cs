@@ -5,7 +5,7 @@
  * the LICENSE file, which is part of this source code package.
  */
 
-namespace Slalom.Stacks.Logging.SqlServer.Locations
+namespace Slalom.Stacks.Logging.SqlServer.Components.Locations
 {
     public class IPInformation
     {

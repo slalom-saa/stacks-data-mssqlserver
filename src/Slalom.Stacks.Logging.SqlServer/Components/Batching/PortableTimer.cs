@@ -18,7 +18,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Slalom.Stacks.Logging.SqlServer.Batching
+namespace Slalom.Stacks.Logging.SqlServer.Components.Batching
 {
     class PortableTimer : IDisposable
     {

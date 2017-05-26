@@ -12,7 +12,7 @@ using Serilog.Events;
 using Slalom.Stacks.Configuration;
 using Slalom.Stacks.Services.Messaging;
 
-namespace Slalom.Stacks.Logging.SqlServer.Core
+namespace Slalom.Stacks.Logging.SqlServer.Components
 {
     public class LogEventEnricher : ILogEventEnricher
     {

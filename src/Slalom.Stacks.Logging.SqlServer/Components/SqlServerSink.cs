@@ -27,9 +27,9 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.MSSqlServer;
 using Serilog.Sinks.PeriodicBatching;
-using Slalom.Stacks.Logging.SqlServer.Locations;
+using Slalom.Stacks.Logging.SqlServer.Components.Locations;
 
-namespace Slalom.Stacks.Logging.SqlServer.Core
+namespace Slalom.Stacks.Logging.SqlServer.Components
 {
     /// <summary>
     ///     Writes log events as rows in a table of MSSqlServer database.
