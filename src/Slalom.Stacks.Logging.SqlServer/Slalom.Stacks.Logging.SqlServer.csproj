@@ -16,6 +16,7 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Version>1.9.3</Version>
+    <Description>Contains components to log requests, responses, traces and events to SQL Server.</Description>
   </PropertyGroup>
 
   <ItemGroup>
