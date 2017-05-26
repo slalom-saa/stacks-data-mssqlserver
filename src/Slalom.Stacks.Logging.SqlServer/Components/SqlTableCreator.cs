@@ -14,13 +14,12 @@
 //
 // Modifications copyright(C) 2017 Stacks Contributors
 
-
 using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace Slalom.Stacks.Logging.SqlServer.Core
+namespace Slalom.Stacks.Logging.SqlServer.Components
 {
     internal class SqlTableCreator
     {

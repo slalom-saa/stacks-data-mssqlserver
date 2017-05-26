@@ -13,12 +13,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Slalom.Stacks.Configuration;
-using Slalom.Stacks.Logging.SqlServer.Batching;
-using Slalom.Stacks.Logging.SqlServer.Locations;
+using Slalom.Stacks.Logging.SqlServer.Components.Batching;
+using Slalom.Stacks.Logging.SqlServer.Components.Locations;
+using Slalom.Stacks.Logging.SqlServer.Settings;
 using Slalom.Stacks.Services.Logging;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.SqlServer.Core
+namespace Slalom.Stacks.Logging.SqlServer.Components
 {
     /// <summary>
     /// A SQL Server <see cref="IResponseLog"/> implementation.

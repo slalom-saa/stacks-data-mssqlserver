@@ -12,11 +12,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Slalom.Stacks.Logging.SqlServer.Batching;
-using Slalom.Stacks.Logging.SqlServer.Core;
-using Slalom.Stacks.Text;
+using Slalom.Stacks.Logging.SqlServer.Components.Batching;
+using Slalom.Stacks.Logging.SqlServer.Settings;
 
-namespace Slalom.Stacks.Logging.SqlServer.Locations
+namespace Slalom.Stacks.Logging.SqlServer.Components.Locations
 {
     public class LocationBatcher : PeriodicBatcher<string>, ILocationStore
     {

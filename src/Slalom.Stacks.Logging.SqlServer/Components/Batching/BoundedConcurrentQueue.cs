@@ -18,7 +18,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Slalom.Stacks.Logging.SqlServer.Batching
+namespace Slalom.Stacks.Logging.SqlServer.Components.Batching
 {
     class BoundedConcurrentQueue<T> 
     {

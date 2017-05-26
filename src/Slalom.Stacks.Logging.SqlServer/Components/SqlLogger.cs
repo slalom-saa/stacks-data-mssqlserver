@@ -12,10 +12,11 @@ using Serilog;
 using Serilog.Context;
 using Serilog.Core;
 using Serilog.Sinks.MSSqlServer;
-using Slalom.Stacks.Logging.SqlServer.Locations;
+using Slalom.Stacks.Logging.SqlServer.Components.Locations;
+using Slalom.Stacks.Logging.SqlServer.Settings;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.SqlServer.Core
+namespace Slalom.Stacks.Logging.SqlServer.Components
 {
     public class SqlLogger : ILogger
     {

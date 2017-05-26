@@ -1,108 +1,100 @@
 ﻿{
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "definitions": {},
-  "properties": {
-    "Stacks": {
-      "id": "/properties/Stacks",
+  "definitions": {
+    "sqlServer": {
+      "description": "Options for SQL Server Logging.",
       "properties": {
-        "Logging": {
-          "id": "/properties/Stacks/properties/Logging",
+        "batchSize": {
+          "default": 100,
+          "description": "The upper size of the batch to write.  When this number is reached, all items will be written for the given type.",
+          "title": "Batch Size",
+          "type": "integer"
+        },
+        "createDatabase": {
+          "default": false,
+          "description": "Indicates whether or not a database should be created if not found.",
+          "title": "Create Database",
+          "type": "boolean"
+        },
+        "selectLimit": {
+          "default": 1000,
+          "description": "The top number of items to select when querying tables.",
+          "title": "Select Limit",
+          "type": "integer"
+        },
+        "connectionString": {
+          "default": "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True",
+          "description": "The SQL connection string.",
+          "title": "Connection String",
+          "type": "string"
+        },
+        "period": {
+          "default": "00:00:05",
+          "description": "The time in between batches.",
+          "title": "Batch Time",
+          "type": "string"
+        },
+        "requestsTableName": {
+          "default": "Requests",
+          "description": "The name of the table that is used for requests.",
+          "title": "Requests Table Name",
+          "type": "string"
+        },
+        "responsesTableName": {
+          "default": "Responses",
+          "description": "The name of the table that is used for responses.",
+          "title": "Response Table Name",
+          "type": "string"
+        },
+        "traceLogLevel": {
+          "default": "Warning",
+          "description": "The trace log level: Verbose, Debug, Information, Warning, Error, Fatal.",
+          "title": "Trace Log Level",
+          "type": "string",
+          "enum": [ "Verbose", "Debug", "Information", "Warning", "Error", "Fatal" ]
+        },
+        "traceTableName": {
+          "default": "Traces",
+          "description": "The name of the table that is used for traces.",
+          "title": "Trace Table Name",
+          "type": "string"
+        },
+        "locations": {
+          "description": "Settings for locations using MaxMind.",
           "properties": {
-            "SqlServer": {
-              "id": "/properties/Stacks/properties/Logging/properties/SqlServer",
-              "properties": {
-                "BatchSize": {
-                  "default": 1000,
-                  "description": "The upper size of the batch to write.  When this number is reached, all items will be written for the given type.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/BatchSize",
-                  "title": "Batch Size",
-                  "type": "integer"
-                },
-                "CreateDatabase": {
-                  "default": false,
-                  "description": "Indicates whether or not a database should be created if not found.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/CreateDatabase",
-                  "title": "Create Database",
-                  "type": "boolean"
-                },
-                "SelectLimit": {
-                  "default": 1000,
-                  "description": "The top number of items to select when querying tables.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/SelectLimit",
-                  "title": "Select Limit",
-                  "type": "integer"
-                },
-                "ConnectionString": {
-                  "default": "Data Source=.;Initial Catalog=Stacks.Logs;Integrated Security=True;MultipleActiveResultSets=True",
-                  "description": "The SQL connection string.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/ConnectionString",
-                  "title": "Connection String",
-                  "type": "string"
-                },
-                "Period": {
-                  "default": "00:00:05",
-                  "description": "The time in between batches.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Period",
-                  "title": "Batch Time",
-                  "type": "string"
-                },
-                "RequestsTableName": {
-                  "default": "Requests",
-                  "description": "The name of the table that is used for requests.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/RequestsTableName",
-                  "title": "Requests Table Name",
-                  "type": "string"
-                },
-                "ResponsesTableName": {
-                  "default": "Responses",
-                  "description": "The name of the table that is used for responses.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/ResponsesTableName",
-                  "title": "Response Table Name",
-                  "type": "string"
-                },
-                "TraceLogLevel": {
-                  "default": "Warning",
-                  "description": "The trace log level: Verbose, Debug, Information, Warning, Error, Fatal.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/TraceLogLevel",
-                  "title": "Trace Log Level",
-                  "type": "string",
-                  "enum": [ "Verbose", "Debug", "Information", "Warning", "Error", "Fatal" ]
-                },
-                "TraceTableName": {
-                  "default": "Traces",
-                  "description": "The name of the table that is used for traces.",
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/TraceTableName",
-                  "title": "Trace Table Name",
-                  "type": "string"
-                },
-                "Locations": {
-                  "additionalProperties": true,
-                  "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations",
-                  "properties": {
-                    "Key": {
-                      "description": "The MaxMind account key.",
-                      "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/Key",
-                      "title": "Key",
-                      "type": "string"
-                    },
-                    "On": {
-                      "default": false,
-                      "description": "Indicates whether locations should be used in logging.",
-                      "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/On",
-                      "title": "On",
-                      "type": "boolean"
-                    },
-                    "UserId": {
-                      "description": "The MaxMind user ID.",
-                      "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/UserId",
-                      "title": "User ID",
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              },
-              "type": "object"
+            "key": {
+              "description": "The MaxMind account key.",
+              "title": "Key",
+              "type": "string"
+            },
+            "on": {
+              "default": false,
+              "description": "Indicates whether locations should be used in logging.",
+              "id": "/properties/Stacks/properties/Logging/properties/SqlServer/properties/Locations/properties/On",
+              "title": "On",
+              "type": "boolean"
+            },
+            "userId": {
+              "description": "The MaxMind user ID.",
+              "title": "User ID",
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "properties": {
+    "stacks": {
+      "description": "The stacks root configuration object.",
+      "properties": {
+        "logging": {
+          "description": "Shared logging configuration.",
+          "properties": {
+            "sqlServer": {
+              "$ref": "#/definitions/sqlServer"
             }
           },
           "type": "object"

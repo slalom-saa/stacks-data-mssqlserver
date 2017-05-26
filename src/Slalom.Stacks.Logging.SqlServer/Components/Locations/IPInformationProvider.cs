@@ -7,7 +7,7 @@
 
 using MaxMind.GeoIP2;
 
-namespace Slalom.Stacks.Logging.SqlServer.Locations
+namespace Slalom.Stacks.Logging.SqlServer.Components.Locations
 {
     public class IPInformationProvider
     {

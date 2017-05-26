@@ -6,21 +6,20 @@
  */
 
 using System;
-using System.Collections.Generic;
 using Autofac;
-using Serilog.Core;
 using Slalom.Stacks.Configuration;
-using Slalom.Stacks.Logging.SqlServer.Core;
-using Slalom.Stacks.Logging.SqlServer.Locations;
+using Slalom.Stacks.Logging.SqlServer.Components;
+using Slalom.Stacks.Logging.SqlServer.Components.Locations;
+using Slalom.Stacks.Logging.SqlServer.Settings;
 using Slalom.Stacks.Validation;
 
-namespace Slalom.Stacks.Logging.SqlServer
+namespace Slalom.Stacks.Logging.SqlServer.Module
 {
     /// <summary>
     /// An Autofac module for the SQL Server Logging module.
     /// </summary>
     /// <seealso cref="Autofac.Module" />
-    public class SqlServerLoggingModule : Module
+    public class SqlServerLoggingModule : Autofac.Module
     {
         private readonly SqlServerLoggingOptions _options;
 

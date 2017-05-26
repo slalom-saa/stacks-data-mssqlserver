@@ -23,9 +23,9 @@ using Serilog.Configuration;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
-using Slalom.Stacks.Logging.SqlServer.Locations;
+using Slalom.Stacks.Logging.SqlServer.Components.Locations;
 
-namespace Slalom.Stacks.Logging.SqlServer.Core
+namespace Slalom.Stacks.Logging.SqlServer.Components
 {
     /// <summary>
     /// Adds the WriteTo.MSSqlServer() extension method to <see cref="LoggerConfiguration" />.

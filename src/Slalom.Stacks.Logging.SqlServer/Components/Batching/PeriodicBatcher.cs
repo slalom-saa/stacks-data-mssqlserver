@@ -18,9 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Slalom.Stacks.Logging.SqlServer.Core;
 
-namespace Slalom.Stacks.Logging.SqlServer.Batching
+namespace Slalom.Stacks.Logging.SqlServer.Components.Batching
 {
     public abstract class PeriodicBatcher<T> : IDisposable
     {
