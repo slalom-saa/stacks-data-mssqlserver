@@ -15,12 +15,12 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.9.2</Version>
+    <Version>1.9.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MaxMind.GeoIP2" Version="2.7.2" />
-    <PackageReference Include="Slalom.Stacks" Version="1.9.2" />
+    <PackageReference Include="Slalom.Stacks" Version="1.9.3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
