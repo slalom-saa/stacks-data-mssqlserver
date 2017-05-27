@@ -17,12 +17,12 @@ namespace Slalom.Stacks.Logging.SqlServer.Components
     public class LogEventEnricher : ILogEventEnricher
     {
         private readonly ExecutionContext _context;
-        private Application _environment;
+        private ApplicationInformation _environment;
 
         public LogEventEnricher(object[] context)
         {
             _context = context.OfType<ExecutionContext>().FirstOrDefault();
-            _environment = context.OfType<Application>().FirstOrDefault();
+            _environment = context.OfType<ApplicationInformation>().FirstOrDefault();
         }
 
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
