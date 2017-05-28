@@ -28,7 +28,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Components
     public class RequestLog : PeriodicBatcher<RequestEntry>, IRequestLog
     {
         private readonly ILocationStore _locations;
-        private readonly Application _environment;
+        private readonly ApplicationInformation _environment;
         private readonly DataTable _eventsTable;
         private readonly SqlServerLoggingOptions _options;
 
@@ -38,7 +38,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Components
         /// <param name="options">The configured options.</param>
         /// <param name="locations">The configured <see cref="ILocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public RequestLog(SqlServerLoggingOptions options, ILocationStore locations, Application environment)
+        public RequestLog(SqlServerLoggingOptions options, ILocationStore locations, ApplicationInformation environment)
             : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));

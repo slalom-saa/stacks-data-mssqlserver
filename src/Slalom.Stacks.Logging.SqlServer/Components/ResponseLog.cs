@@ -29,7 +29,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Components
     {
         private readonly SqlServerLoggingOptions _options;
         private readonly ILocationStore _locations;
-        private readonly Application _environment;
+        private readonly ApplicationInformation _environment;
         private readonly DataTable _eventsTable;
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Slalom.Stacks.Logging.SqlServer.Components
         /// <param name="options">The configured <see cref="SqlServerLoggingOptions" />.</param>
         /// <param name="locations">The configured <see cref="LocationStore" />.</param>
         /// <param name="environment">The environment context.</param>
-        public ResponseLog(SqlServerLoggingOptions options, ILocationStore locations, Application environment) : base(options.BatchSize, options.Period)
+        public ResponseLog(SqlServerLoggingOptions options, ILocationStore locations, ApplicationInformation environment) : base(options.BatchSize, options.Period)
         {
             Argument.NotNull(options, nameof(options));
             Argument.NotNull(locations, nameof(locations));

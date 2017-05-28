@@ -40,9 +40,6 @@ namespace Slalom.Stacks.ConsoleClient
                     stack.UseSqlServerLogging();
 
                     stack.Logger.Debug("hello");
-
-                    Console.ReadKey();
-
                 }
             }
             catch (Exception exception)
